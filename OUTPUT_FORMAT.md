@@ -3,7 +3,7 @@ Output Format
 
 # Target folders
 
-The target folder is set by the `parsed_backup_output_dir` parameter, typically set to `output`.
+The target folder is set by the `output_dir` parameter, typically set to `output`.
 
 With value `output` these subfolders to `./output` will be created:
 - call_logs: data of calls
@@ -29,7 +29,7 @@ Example file structure:
     |- Firstname Lastname (+41786319999).txt
 ```
 
-With parameter `backup_output_style` set to `formatted_txt` (default), the file contents would be like:
+With parameter `output_style` set to `formatted_txt` (default), the file contents would be like:
 
 File `+41445209999.txt` (last call was a video call):
 ```
@@ -80,7 +80,7 @@ Example file structure:
     |- Group-Name.txt
 ```
 
-With parameter `backup_output_style` set to `formatted_txt` (default), the file contents would be like:
+With parameter `output_style` set to `formatted_txt` (default), the file contents would be like:
 
 File `Firstname Lastname (+41786319999).txt`:
 ```

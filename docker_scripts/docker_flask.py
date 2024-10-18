@@ -18,7 +18,7 @@ if not app.debug:
 def run_script():
 	app.logger.info(f'{hostname} is processing request for /whatsapp-backup-chat-viewer with payload {request.json}')
 
-	if not all([request.json.get('msgdb'), request.json.get('wadb'), request.json.get('parsed_backup_output_dir')]):
+	if not all([request.json.get('msgdb'), request.json.get('wadb'), request.json.get('output_dir')]):
 		return jsonify({"error": "Missing required parameters"}), 400
 
 	# Call the script with the provided paths
@@ -26,13 +26,13 @@ def run_script():
 		"python", "main.py",
 		"--msgdb", request.json.get('msgdb'),
 		"--wadb", request.json.get('wadb'),
-		"--backup_strategy", request.json.get('backup_strategy', 'both'),
-		"--backup_output_style", request.json.get('backup_output_style', 'raw_txt'),
-		"--parsed_backup_output_dir", request.json.get('parsed_backup_output_dir')
+		"--conversation_types", request.json.get('conversation_types', 'both'),
+		"--output_style", request.json.get('output_style', 'raw_txt'),
+		"--output_dir", request.json.get('output_dir')
 	]
-	for backup_specific_or_all_chat_call in request.json.get('backup_specific_or_all_chat_call', ['all']):
-		command.append("--backup_specific_or_all_chat_call")
-		command.append(backup_specific_or_all_chat_call)
+	for phone_number_filter in request.json.get('phone_number_filter', ['all']):
+		command.append("--phone_number_filter")
+		command.append(phone_number_filter)
 
 	result = subprocess.run(command, capture_output=True, text=True)
 

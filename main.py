@@ -72,8 +72,8 @@ def main(
         msgdb_path: str,
         wadb_path: str,
         output_dir: str,
-        backup_strategy: [],
-        phone_numbers: [],
+        conversation_types: List[str],
+        phone_numbers: List[str],
         output_style: str
 ):
     if output_style not in ("raw_txt", "formatted_txt", "json"):
@@ -85,19 +85,19 @@ def main(
         output_chat_directory = output_dir + CHAT_DIR
         output_call_logs_directory = output_dir + CALL_LOGS_DIR
 
-        if "chats" in backup_strategy:
+        if "chats" in conversation_types:
             if not os.path.exists(output_chat_directory):
                 os.makedirs(output_chat_directory)
-        if "call_logs" in backup_strategy:
+        if "call_logs" in conversation_types:
             if not os.path.exists(output_call_logs_directory):
                 os.makedirs(output_call_logs_directory)
 
-        if phone_numbers == ["all"]:
-            if "chats" in backup_strategy:
+        if not phone_numbers:
+            if "chats" in conversation_types:
                 chats = chat_builder.build_all_chats(msgdb_cursor, wadb_cursor)
                 for chat in tqdm(chats):
                     export_chat(chat=chat, folder=output_chat_directory, output_style=output_style)
-            if "call_logs" in backup_strategy:
+            if "call_logs" in conversation_types:
                 call_logs = call_log_builder.build_all_call_logs(msgdb_cursor, wadb_cursor)
                 for call_log in tqdm(call_logs):
                     export_call_logs(
@@ -105,12 +105,12 @@ def main(
                     )
         else:
             for phone_number in tqdm(phone_numbers):
-                if "chats" in backup_strategy:
+                if "chats" in conversation_types:
                     chat = chat_builder.build_chat_for_given_id_or_phone_number(
                         msgdb_cursor, wadb_cursor, phone_number=phone_number
                     )
                     export_chat(chat=chat, folder=output_chat_directory, output_style=output_style)
-                if "call_logs" in backup_strategy:
+                if "call_logs" in conversation_types:
                     call_log = call_log_builder.build_call_log_for_given_id_or_phone_number(
                         msgdb_cursor, wadb_cursor, phone_number=phone_number
                     )
@@ -133,8 +133,8 @@ if __name__ == "__main__":
         "--wadb", "-wdb", type=str, required=True, help="Path to 'wa.db' file"
     )
     ap.add_argument(
-        "--backup_strategy",
-        "-b",
+        "--conversation_types",
+        "-t",
         choices=["chats", "call_logs"],
         nargs="+",
         type=str,
@@ -142,33 +142,33 @@ if __name__ == "__main__":
         help="Backup only chats, only call_logs, or both (by providing both)",
     )
     ap.add_argument(
-        "--backup_output_style",
-        "-f",
+        "--output_style",
+        "-s",
         choices=["raw_txt", "formatted_txt", "json"],
         type=str,
         default="formatted_txt",
         help="Style in which your parsed backup will be stored",
     )
     ap.add_argument(
-        "--parsed_backup_output_dir",
+        "--output_dir",
         "-o",
         type=str,
         help="Path to directory where your parsed chats and/or parsed call logs will be stored",
     )
     ap.add_argument(
-        "--backup_specific_or_all_chat_call",
-        "-e",
+        "--phone_number_filter",
+        "-f",
         nargs="*",
-        default=["all"],
-        help="Phone numbers (format: XXXXXXXXXXXX) of the chats and/or call logs that you want to extract from the database",
+        default=[],
+        help="Phone numbers (format: XXXXXXXXXXXX) of the chats and/or call logs that you want to extract from the database. Empty means all phone numbers",
     )
     args = ap.parse_args()
 
     main(
         msgdb_path=args.msgdb,
         wadb_path=args.wadb,
-        output_dir=args.parsed_backup_output_dir,
-        backup_strategy=args.backup_strategy,
-        phone_numbers=args.backup_specific_or_all_chat_call,
-        output_style=args.backup_output_style
+        output_dir=args.output_dir,
+        conversation_types=args.conversation_types,
+        phone_numbers=args.phone_number_filter,
+        output_style=args.output_style
     )
