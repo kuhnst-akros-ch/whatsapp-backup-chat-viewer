@@ -8,12 +8,9 @@ from tqdm import tqdm
 from src.call_log_extractor import builder as call_log_builder
 from src.chat_extractor import builder as chat_builder
 from src.exports.to_json import call_logs_to_json, chats_to_json
-from src.exports.to_txt import (
-    call_logs_to_txt_formatted,
-    call_logs_to_txt_raw,
-    chats_to_txt_formatted,
-    chats_to_txt_raw,
-)
+from src.exports.to_txt_raw import call_logs_to_txt_raw, chats_to_txt_raw
+from src.exports.chats_to_txt_formatted import chats_to_txt_formatted
+from src.exports.call_logs_to_txt_formatted import call_logs_to_txt_formatted
 
 CALL_LOGS_DIR = "/call_logs"
 CHAT_DIR = "/chats"
