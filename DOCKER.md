@@ -1,3 +1,6 @@
+How-To run `whatsapp-backup-chat-viewer` in Docker
+==================================================
+
 # Initial data
 
 Place the files extracted from phones in a folder named `whatsapp_backup` in the root of this project.
