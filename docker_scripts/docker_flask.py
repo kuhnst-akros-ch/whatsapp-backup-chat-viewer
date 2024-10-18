@@ -18,21 +18,21 @@ if not app.debug:
 def run_script():
 	app.logger.info(f'{hostname} is processing request for /whatsapp-backup-chat-viewer with payload {request.json}')
 
-	# Extract paths from POST request
-	mdb_path = request.json.get('mdb')
-	wdb_path = request.json.get('wdb')
-	output_path = request.json.get('output')
-
-	if not all([mdb_path, wdb_path, output_path]):
+	if not all([request.json.get('msgdb'), request.json.get('wadb'), request.json.get('parsed_backup_output_dir')]):
 		return jsonify({"error": "Missing required parameters"}), 400
 
 	# Call the script with the provided paths
 	command = [
 		"python", "main.py",
-		"-mdb", mdb_path,
-		"-wdb", wdb_path,
-		"-o", output_path
+		"--msgdb", request.json.get('msgdb'),
+		"--wadb", request.json.get('wadb'),
+		"--backup_strategy", request.json.get('backup_strategy', 'both'),
+		"--backup_output_style", request.json.get('backup_output_style', 'raw_txt'),
+		"--parsed_backup_output_dir", request.json.get('parsed_backup_output_dir')
 	]
+	for backup_specific_or_all_chat_call in request.json.get('backup_specific_or_all_chat_call', ['all']):
+		command.append("--backup_specific_or_all_chat_call")
+		command.append(backup_specific_or_all_chat_call)
 
 	result = subprocess.run(command, capture_output=True, text=True)
 
