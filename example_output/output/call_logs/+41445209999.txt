@@ -1,0 +1,18 @@
++41445209999
+
+[2020-04-30 09:19:14]: Me ----> +41445209999
+	>>> Call Type: 📞 - Voice Call
+	>>> Duration: 22 seconds
+	>>> Status: 5
+[2020-04-30 09:27:12]: +41445209999 ----> Me
+	>>> Call Type: 📞 - Voice Call
+	>>> Duration: 00 seconds
+	>>> Status: 2
+[2020-04-30 09:58:12]: Me ----> +41445209999
+	>>> Call Type: 📞 - Voice Call
+	>>> Duration: 08:28 minutes
+	>>> Status: 5
+[2020-05-30 15:28:36]: +41445209999 ----> Me
+	>>> Call Type: 📹 - Video Call
+	>>> Duration: 04:06 minutes
+	>>> Status: 5
