@@ -57,10 +57,11 @@ if __name__ == "__main__":
     ap.add_argument(
         "--backup_strategy",
         "-b",
-        choices=["chats", "call_logs", "both"],
+        choices=["chats", "call_logs"],
+        nargs="+",
         type=str,
-        default="both",
-        help="Backup only chats, only call_logs or both",
+        default=["chats", "call_logs"],
+        help="Backup only chats, only call_logs, or both (by providing both)",
     )
     ap.add_argument(
         "--backup_output_style",
@@ -87,12 +88,6 @@ if __name__ == "__main__":
 
     msgdb, msgdb_cursor = create_db_connection(args.msgdb)
     wadb, wadb_cursor = create_db_connection(args.wadb)
-
-    args.backup_strategy = (
-        ["chats", "call_logs"]
-        if args.backup_strategy == "both"
-        else [args.backup_strategy]
-    )
 
     if args.backup_output_style == "raw_txt":
         if args.backup_specific_or_all_chat_call == ["all"]:
