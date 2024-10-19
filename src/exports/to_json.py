@@ -28,7 +28,8 @@ def chat_to_json(chat: Chat, folder: str) -> None:
     else:
         chat_title_details = ""
 
-    with open(f"{folder}/{chat_title_details}.json", "w", encoding="utf8") as file:
+    file_name = chat_title_details.replace("/", "_") + ".json"
+    with open(f"{folder}/{file_name}", "w", encoding="utf8") as file:
         json.dump(asdict(chat), file, sort_keys=True, indent=4, ensure_ascii=False)
 
 

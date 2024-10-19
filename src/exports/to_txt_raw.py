@@ -23,7 +23,9 @@ def chat_to_txt_raw(chat: Chat, folder: str) -> None:
         chat_title_details = ""
 
     messages = "\n".join([str(message) for message in chat.messages])
-    with open(f"{folder}/{chat_title_details}-raw.txt", "w", encoding="utf-8") as file:
+
+    file_name = chat_title_details.replace("/", "_") + "-raw.txt"
+    with open(f"{folder}/{file_name}", "w", encoding="utf-8") as file:
         file.write(f"{chat_title_details}\n\n{messages}")
 
 

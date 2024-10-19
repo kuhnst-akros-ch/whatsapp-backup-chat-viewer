@@ -34,7 +34,9 @@ def chat_to_txt_formatted(chat: Chat, folder: str) -> None:
     chat_title_details = get_chat_title_details(chat)
 
     messages = "\n".join(message_list)
-    with open(f"{folder}/{chat_title_details}.txt", "w", encoding="utf-8") as file:
+
+    file_name = chat_title_details.replace("/", "_") + ".txt"
+    with open(f"{folder}/{file_name}", "w", encoding="utf-8") as file:
         file.write(f"{chat_title_details}\n\n{messages}")
 
 

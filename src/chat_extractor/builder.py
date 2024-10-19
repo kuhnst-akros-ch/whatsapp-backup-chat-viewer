@@ -1,6 +1,6 @@
 import sqlite3
 from itertools import chain
-from typing import Generator, Union
+from typing import Generator, Union, Dict
 
 from ..common import contact_resolver
 from ..models import Chat, Contact, GeoPosition, GroupName, Media, Message
@@ -13,7 +13,7 @@ from .resolver import (
 
 
 def build_message_for_given_id(
-    msgdb_cursor: sqlite3.Cursor, wadb_cursor: sqlite3.Cursor, message_id: int
+    msgdb_cursor: sqlite3.Cursor, contacts: Dict[str, Contact], message_id: int
 ) -> Message:
     """Extract text message, media (if available) and location (if available) for a given message_id.
 
@@ -21,7 +21,7 @@ def build_message_for_given_id(
 
     Args:
         msgdb_cursor (sqlite3.Cursor): The cursor for the 'msgdb' database.
-        wadb_cursor (sqlite3.Cursor): The cursor for the 'wadb.db' database.
+        contacts (Dict[str, Contact]): Dict of all contacts and jid as key.
         message_id (int): The message id of the message you want to extract.
 
     Returns:
@@ -32,10 +32,7 @@ def build_message_for_given_id(
     )
 
     if raw_string_jid:
-        contact = contact_resolver(
-            wadb_cursor=wadb_cursor, raw_string_jid=raw_string_jid
-        )
-        message["sender_contact"] = Contact(raw_string_jid=raw_string_jid, **contact)
+        message["sender_contact"] = contact_resolver(contacts=contacts, raw_string_jid=raw_string_jid)
     else:
         message["sender_contact"] = None
 
@@ -58,7 +55,7 @@ def build_message_for_given_id(
 
 def build_chat_for_given_id_or_phone_number(
     msgdb_cursor: sqlite3.Cursor,
-    wadb_cursor: sqlite3.Cursor,
+    contacts: Dict[str, Contact],
     chat_row_id: int = None,
     phone_number: str = None,
 ) -> Union[Chat, None]:
@@ -68,7 +65,7 @@ def build_chat_for_given_id_or_phone_number(
 
     Args:
         msgdb_cursor (sqlite3.Cursor): The cursor for the 'msgdb' database.
-        wadb_cursor (sqlite3.Cursor): The cursor for the 'wadb' database.
+        contacts (Dict[str, Contact]): Dict of all contacts and jid as key.
         chat_row_id (int): ID of the chat to extract. Defaults to None.
         phone_number (str): Phone Number of the person you want to extract the chats of. Defaults to None.
 
@@ -86,21 +83,17 @@ def build_chat_for_given_id_or_phone_number(
     else:
         raise AssertionError("'chat_row_id' and 'phone_number' both cannot be None")
 
-    dm_or_group = contact_resolver(
-        wadb_cursor=wadb_cursor, raw_string_jid=raw_string_jid
-    )
-    if dm_or_group.get("number"):
-        chat["chat_title"] = Contact(raw_string_jid=raw_string_jid, **dm_or_group)
+    contact = contact_resolver(contacts=contacts, raw_string_jid=raw_string_jid)
+    if contact.number:
+        chat["chat_title"] = contact
     else:
-        chat["chat_title"] = GroupName(
-            raw_string_jid=raw_string_jid, name=dm_or_group.get("name")
-        )
+        chat["chat_title"] = GroupName(raw_string_jid=raw_string_jid, name=contact.name)
 
     query = f"""SELECT message._id FROM 'message' WHERE message.chat_row_id={chat.get("chat_id")}"""
     execution = msgdb_cursor.execute(query)
     res_query = list(chain.from_iterable(execution.fetchall()))
     chat["messages"] = [
-        build_message_for_given_id(msgdb_cursor, wadb_cursor, message_id)
+        build_message_for_given_id(msgdb_cursor, contacts, message_id)
         for message_id in res_query
     ]
 
@@ -108,7 +101,7 @@ def build_chat_for_given_id_or_phone_number(
 
 
 def build_all_chats(
-    msgdb_cursor: sqlite3.Cursor, wadb_cursor: sqlite3.Cursor
+    msgdb_cursor: sqlite3.Cursor, contacts: Dict[str, Contact]
 ) -> Generator[Chat, None, None]:
     """Extract all chats in the msgdb database.
 
@@ -117,7 +110,7 @@ def build_all_chats(
 
     Args:
         msgdb_cursor (sqlite3.Cursor): The cursor for the 'msgdb' database.
-        wadb_cursor (sqlite3.Cursor): The cursor for the 'wadb' database.
+        contacts (Dict[str, Contact]): Dict of all contacts and jid as key.
 
     Return:
         A generator of Chat objects.
@@ -128,7 +121,7 @@ def build_all_chats(
 
     return (
         build_chat_for_given_id_or_phone_number(
-            msgdb_cursor=msgdb_cursor, wadb_cursor=wadb_cursor, chat_row_id=chat_id
+            msgdb_cursor=msgdb_cursor, contacts=contacts, chat_row_id=chat_id
         )
         for chat_id in res_query
     )

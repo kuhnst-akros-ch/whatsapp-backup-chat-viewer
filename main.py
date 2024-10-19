@@ -1,17 +1,18 @@
 import argparse
 import os
 import sqlite3
-from typing import List, Generator, Tuple
+from typing import List, Generator, Tuple, Dict
 
 from tqdm import tqdm
 
 from src.call_log_extractor import builder as call_log_builder
 from src.chat_extractor import builder as chat_builder
+from src.contact_extractor import builder as contact_builder
 from src.exports.to_json import call_log_to_json, chat_to_json
 from src.exports.to_txt_raw import call_log_to_txt_raw, chat_to_txt_raw
 from src.exports.chat_to_txt_formatted import chat_to_txt_formatted
 from src.exports.call_log_to_txt_formatted import call_log_to_txt_formatted
-from src.models import Chat, CallLog
+from src.models import Chat, CallLog, Contact
 
 CALL_LOGS_DIR = "/call_logs"
 CHAT_DIR = "/chats"
@@ -45,28 +46,38 @@ def close_db_connections(databases: List[sqlite3.Connection]) -> None:
         db.close()
 
 
-def load_call_logs(msgdb_cursor, output_call_logs_directory, phone_numbers, wadb_cursor) -> [Generator[CallLog, None, None]]:
+def load_call_logs(
+        msgdb_cursor: sqlite3.Cursor,
+        output_call_logs_directory: str,
+        phone_numbers: List[str],
+        contacts: Dict[str, Contact]
+) -> [Generator[CallLog, None, None]]:
     if not os.path.exists(output_call_logs_directory):
         os.makedirs(output_call_logs_directory)
     if not phone_numbers:
-        return call_log_builder.build_all_call_logs(msgdb_cursor, wadb_cursor)
+        return call_log_builder.build_all_call_logs(msgdb_cursor, contacts)
     else:
         return [
             call_log_builder.build_call_log_for_given_id_or_phone_number(
-                msgdb_cursor, wadb_cursor, phone_number=phone_number
+                msgdb_cursor, contacts, phone_number=phone_number
             ) for phone_number in phone_numbers
         ]
 
 
-def load_chats(msgdb_cursor, output_chat_directory, phone_numbers, wadb_cursor) -> [Generator[Chat, None, None]]:
+def load_chats(
+        msgdb_cursor: sqlite3.Cursor,
+        output_chat_directory: str,
+        phone_numbers: List[str],
+        contacts: Dict[str, Contact]
+) -> [Generator[Chat, None, None]]:
     if not os.path.exists(output_chat_directory):
         os.makedirs(output_chat_directory)
     if not phone_numbers:
-        return chat_builder.build_all_chats(msgdb_cursor, wadb_cursor)
+        return chat_builder.build_all_chats(msgdb_cursor, contacts)
     else:
         return [
             chat_builder.build_chat_for_given_id_or_phone_number(
-                msgdb_cursor, wadb_cursor, phone_number=phone_number
+                msgdb_cursor, contacts, phone_number=phone_number
             ) for phone_number in phone_numbers
         ]
 
@@ -105,24 +116,28 @@ def main(
     if output_style not in ("raw_txt", "formatted_txt", "json"):
         raise AssertionError(f"Invalid formatting '{args.output_style}' requested")
 
-    msgdb, msgdb_cursor = create_db_connection(msgdb_path)
     wadb, wadb_cursor = create_db_connection(wadb_path)
+    try:
+        contacts = contact_builder.build_all_contacts(wadb_cursor)
+    finally:
+        close_db_connections([wadb])
 
+    msgdb, msgdb_cursor = create_db_connection(msgdb_path)
     try:
         output_chat_directory = output_dir + CHAT_DIR
         output_call_logs_directory = output_dir + CALL_LOGS_DIR
 
         if "chats" in conversation_types:
-            chats = load_chats(msgdb_cursor, output_chat_directory, phone_numbers, wadb_cursor)
+            chats = load_chats(msgdb_cursor, output_chat_directory, phone_numbers, contacts)
             for chat in tqdm(chats):
                 export_chat(chat=chat, folder=output_chat_directory, output_style=output_style)
 
         if "call_logs" in conversation_types:
-            call_logs = load_call_logs(msgdb_cursor, output_call_logs_directory, phone_numbers, wadb_cursor)
+            call_logs = load_call_logs(msgdb_cursor, output_call_logs_directory, phone_numbers, contacts)
             for call_log in tqdm(call_logs):
                 export_call_log(call_log=call_log, folder=output_call_logs_directory, output_style=output_style)
     finally:
-        close_db_connections([msgdb, wadb])
+        close_db_connections([msgdb])
 
 
 if __name__ == "__main__":

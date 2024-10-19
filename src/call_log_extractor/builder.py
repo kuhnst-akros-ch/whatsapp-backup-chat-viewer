@@ -1,6 +1,6 @@
 import sqlite3
 from itertools import chain
-from typing import Generator, Union
+from typing import Generator, Union, Dict
 
 from ..common import contact_resolver
 from ..models import Call, CallLog, Contact
@@ -29,7 +29,7 @@ def build_call_for_given_id(
 
 def build_call_log_for_given_id_or_phone_number(
     msgdb_cursor: sqlite3.Cursor,
-    wadb_cursor: sqlite3.Cursor,
+    contacts: Dict[str, Contact],
     jid_row_id: int = None,
     phone_number: str = None,
 ) -> Union[CallLog, None]:
@@ -37,7 +37,7 @@ def build_call_log_for_given_id_or_phone_number(
 
     Args:
         msgdb_cursor (sqlite3.Cursor): 'msgdb' cursor.
-        wadb_cursor (sqlite3.Cursor): 'wadb' cursor.
+        contacts (Dict[str, Contact]): Dict of all contacts and jid as key.
         jid_row_id (int, optional): jid of the call_log to extract. Defaults to None.
         phone_number (str, optional): Phone Number of the person you want to extract the call_logs of. Defaults to None.
 
@@ -55,10 +55,8 @@ def build_call_log_for_given_id_or_phone_number(
     else:
         raise AssertionError("'jid_row_id' and 'phone_number' cannot both be None")
 
-    dm_or_group = contact_resolver(
-        wadb_cursor=wadb_cursor, raw_string_jid=raw_string_jid
-    )
-    call_log["caller_id"] = Contact(raw_string_jid=raw_string_jid, **dm_or_group)
+    contact = contact_resolver(contacts=contacts, raw_string_jid=raw_string_jid)
+    call_log["caller_id"] = contact
 
     query = f"""SELECT call_log._id FROM 'call_log' WHERE call_log.jid_row_id={call_log.get("jid_row_id")}"""
     execution = msgdb_cursor.execute(query)
@@ -72,13 +70,13 @@ def build_call_log_for_given_id_or_phone_number(
 
 
 def build_all_call_logs(
-    msgdb_cursor: sqlite3.Cursor, wadb_cursor: sqlite3.Cursor
+    msgdb_cursor: sqlite3.Cursor, contacts: Dict[str, Contact]
 ) -> Generator[CallLog, None, None]:
     """Extract all call_logs in the msgdb database.
 
     Args:
         msgdb_cursor (sqlite3.Cursor): 'msgdb' cursor.
-        wadb_cursor (sqlite3.Cursor): 'wadb' cursor.
+        contacts (Dict[str, Contact]): Dict of all contacts and jid as key.
 
     Returns:
         A generator of CallLog objects
@@ -89,7 +87,7 @@ def build_all_call_logs(
 
     return (
         build_call_log_for_given_id_or_phone_number(
-            msgdb_cursor=msgdb_cursor, wadb_cursor=wadb_cursor, jid_row_id=jid_row_id
+            msgdb_cursor=msgdb_cursor, contacts=contacts, jid_row_id=jid_row_id
         )
         for jid_row_id in sorted(res_query)
     )
