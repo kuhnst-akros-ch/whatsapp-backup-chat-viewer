@@ -4,7 +4,7 @@ from typing import Callable, List, Generator
 from src.models import Chat, Message, Contact, GroupName
 
 
-def chats_to_txt_formatted(chat: Chat, folder: str) -> None:
+def chat_to_txt_formatted(chat: Chat, folder: str) -> None:
     """Format chat messages in a readable format and store them as a text file.
 
     Args:

@@ -1,16 +1,16 @@
 import argparse
 import os
 import sqlite3
-from typing import List, Tuple
+from typing import List, Generator, Tuple
 
 from tqdm import tqdm
 
 from src.call_log_extractor import builder as call_log_builder
 from src.chat_extractor import builder as chat_builder
-from src.exports.to_json import call_logs_to_json, chats_to_json
-from src.exports.to_txt_raw import call_logs_to_txt_raw, chats_to_txt_raw
-from src.exports.chats_to_txt_formatted import chats_to_txt_formatted
-from src.exports.call_logs_to_txt_formatted import call_logs_to_txt_formatted
+from src.exports.to_json import call_log_to_json, chat_to_json
+from src.exports.to_txt_raw import call_log_to_txt_raw, chat_to_txt_raw
+from src.exports.chat_to_txt_formatted import chat_to_txt_formatted
+from src.exports.call_log_to_txt_formatted import call_log_to_txt_formatted
 from src.models import Chat, CallLog
 
 CALL_LOGS_DIR = "/call_logs"
@@ -45,7 +45,7 @@ def close_db_connections(databases: List[sqlite3.Connection]) -> None:
         db.close()
 
 
-def load_call_logs(msgdb_cursor, output_call_logs_directory, phone_numbers, wadb_cursor):
+def load_call_logs(msgdb_cursor, output_call_logs_directory, phone_numbers, wadb_cursor) -> [Generator[CallLog, None, None]]:
     if not os.path.exists(output_call_logs_directory):
         os.makedirs(output_call_logs_directory)
     if not phone_numbers:
@@ -58,7 +58,7 @@ def load_call_logs(msgdb_cursor, output_call_logs_directory, phone_numbers, wadb
         ]
 
 
-def load_chats(msgdb_cursor, output_chat_directory, phone_numbers, wadb_cursor):
+def load_chats(msgdb_cursor, output_chat_directory, phone_numbers, wadb_cursor) -> [Generator[Chat, None, None]]:
     if not os.path.exists(output_chat_directory):
         os.makedirs(output_chat_directory)
     if not phone_numbers:
@@ -71,25 +71,25 @@ def load_chats(msgdb_cursor, output_chat_directory, phone_numbers, wadb_cursor):
         ]
 
 
-def export_call_logs(call_log: CallLog, folder: str, output_style: str):
+def export_call_log(call_log: CallLog, folder: str, output_style: str) -> None:
     if call_log.calls:
         if output_style == "raw_txt":
-            call_logs_to_txt_raw(call_log=call_log, folder=folder)
+            call_log_to_txt_raw(call_log=call_log, folder=folder)
         elif output_style == "formatted_txt":
-            call_logs_to_txt_formatted(call_log=call_log, folder=folder)
+            call_log_to_txt_formatted(call_log=call_log, folder=folder)
         elif output_style == "json":
-            call_logs_to_json(call_log=call_log, folder=folder)
+            call_log_to_json(call_log=call_log, folder=folder)
         else:
             raise AssertionError("Invalid 'call_log formatting' requested")
 
 
-def export_chat(chat: Chat, folder: str, output_style: str):
+def export_chat(chat: Chat, folder: str, output_style: str) -> None:
     if output_style == "raw_txt":
-        chats_to_txt_raw(chat=chat, folder=folder)
+        chat_to_txt_raw(chat=chat, folder=folder)
     elif output_style == "formatted_txt":
-        chats_to_txt_formatted(chat=chat, folder=folder)
+        chat_to_txt_formatted(chat=chat, folder=folder)
     elif output_style == "json":
-        chats_to_json(chat=chat, folder=folder)
+        chat_to_json(chat=chat, folder=folder)
     else:
         raise AssertionError("Invalid 'chat formatting' requested")
 
@@ -101,12 +101,13 @@ def main(
         conversation_types: List[str],
         phone_numbers: List[str],
         output_style: str
-):
+) -> None:
     if output_style not in ("raw_txt", "formatted_txt", "json"):
         raise AssertionError(f"Invalid formatting '{args.output_style}' requested")
 
     msgdb, msgdb_cursor = create_db_connection(msgdb_path)
     wadb, wadb_cursor = create_db_connection(wadb_path)
+
     try:
         output_chat_directory = output_dir + CHAT_DIR
         output_call_logs_directory = output_dir + CALL_LOGS_DIR
@@ -119,8 +120,7 @@ def main(
         if "call_logs" in conversation_types:
             call_logs = load_call_logs(msgdb_cursor, output_call_logs_directory, phone_numbers, wadb_cursor)
             for call_log in tqdm(call_logs):
-                export_call_logs(call_log=call_log, folder=output_call_logs_directory, output_style=output_style)
-
+                export_call_log(call_log=call_log, folder=output_call_logs_directory, output_style=output_style)
     finally:
         close_db_connections([msgdb, wadb])
 

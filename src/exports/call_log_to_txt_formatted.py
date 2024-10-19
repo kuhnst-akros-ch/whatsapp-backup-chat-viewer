@@ -3,7 +3,7 @@ from datetime import datetime
 from src.models import CallLog
 
 
-def call_logs_to_txt_formatted(call_log: CallLog, folder: str) -> None:
+def call_log_to_txt_formatted(call_log: CallLog, folder: str) -> None:
     """Format call logs in a readable format and store them as a text file.
 
     Args:

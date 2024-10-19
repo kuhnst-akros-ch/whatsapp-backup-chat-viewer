@@ -1,5 +1,5 @@
 import src.exports.call_logs_to_txt_formatted
-from src.exports.chats_to_txt_formatted import chats_to_txt_formatted
+from src.exports.chats_to_txt_formatted import chat_to_txt_formatted
 from src.exports import to_txt_raw
 from src.models import (
     Call,
@@ -90,7 +90,7 @@ def test_export_chats_to_txt_raw(tmp_path):
     test_chat_dir = tmp_path / "chats"
     test_chat_dir.mkdir()
 
-    to_txt_raw.chats_to_txt_raw(chat=test_chat, folder=f"{test_chat_dir}")
+    to_txt_raw.chat_to_txt_raw(chat=test_chat, folder=f"{test_chat_dir}")
     with open(
         f"{test_chat_dir}/{test_chat.chat_title.name} ({test_chat.chat_title.number})-raw.txt"
     ) as f:
@@ -164,7 +164,7 @@ def test_export_chats_to_txt_formatted(tmp_path):
 
     test_chat_dir = tmp_path / "chats"
     test_chat_dir.mkdir()
-    chats_to_txt_formatted(chat=test_chat, folder=f"{test_chat_dir}")
+    chat_to_txt_formatted(chat=test_chat, folder=f"{test_chat_dir}")
     with open(f"{test_chat_dir}/{test_chat.chat_title.name}.txt") as f:
         assert f.read() == expected_export_chats_to_txt_formatted_result
 
@@ -200,7 +200,7 @@ def test_export_call_logs_to_txt_raw(tmp_path):
 
     test_call_log_dir = tmp_path / "call_logs"
     test_call_log_dir.mkdir()
-    to_txt_raw.call_logs_to_txt_raw(call_log=test_call_log, folder=f"{test_call_log_dir}")
+    to_txt_raw.call_log_to_txt_raw(call_log=test_call_log, folder=f"{test_call_log_dir}")
     with open(
         f"{test_call_log_dir}/{test_call_log.caller_id.name} ({test_call_log.caller_id.number})-raw.txt"
     ) as f:
@@ -238,7 +238,7 @@ def test_export_call_logs_to_txt_formatted(tmp_path):
 
     test_call_log_dir = tmp_path / "call_logs"
     test_call_log_dir.mkdir()
-    src.exports.call_logs_to_txt_formatted.call_logs_to_txt_formatted(
+    src.exports.call_logs_to_txt_formatted.call_log_to_txt_formatted(
         call_log=test_call_log, folder=f"{test_call_log_dir}"
     )
     with open(

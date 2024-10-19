@@ -5,7 +5,7 @@ from attrs import asdict
 from ..models import CallLog, Chat, Contact, GroupName
 
 
-def chats_to_json(chat: Chat, folder: str) -> None:
+def chat_to_json(chat: Chat, folder: str) -> None:
     """Store chat as a JSON file.
 
     It takes a chat object and a directory, and writes a json file to the directory with the chat's
@@ -32,7 +32,7 @@ def chats_to_json(chat: Chat, folder: str) -> None:
         json.dump(asdict(chat), file, sort_keys=True, indent=4, ensure_ascii=False)
 
 
-def call_logs_to_json(call_log: CallLog, folder: str) -> None:
+def call_log_to_json(call_log: CallLog, folder: str) -> None:
     """Store call logs as a JSON file.
 
     It takes a `CallLog` object and a directory path, and writes a JSON file to the directory with the

@@ -1,7 +1,7 @@
 from ..models import CallLog, Chat, Contact, GroupName
 
 
-def chats_to_txt_raw(chat: Chat, folder: str) -> None:
+def chat_to_txt_raw(chat: Chat, folder: str) -> None:
     """Store chat messages in a text file without formatting.
 
     Args:
@@ -27,7 +27,7 @@ def chats_to_txt_raw(chat: Chat, folder: str) -> None:
         file.write(f"{chat_title_details}\n\n{messages}")
 
 
-def call_logs_to_txt_raw(call_log: CallLog, folder: str) -> None:
+def call_log_to_txt_raw(call_log: CallLog, folder: str) -> None:
     """Store call logs in a text file without formatting.
 
     Args:
