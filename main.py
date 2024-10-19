@@ -45,6 +45,32 @@ def close_db_connections(databases: List[sqlite3.Connection]) -> None:
         db.close()
 
 
+def load_call_logs(msgdb_cursor, output_call_logs_directory, phone_numbers, wadb_cursor):
+    if not os.path.exists(output_call_logs_directory):
+        os.makedirs(output_call_logs_directory)
+    if not phone_numbers:
+        return call_log_builder.build_all_call_logs(msgdb_cursor, wadb_cursor)
+    else:
+        return [
+            call_log_builder.build_call_log_for_given_id_or_phone_number(
+                msgdb_cursor, wadb_cursor, phone_number=phone_number
+            ) for phone_number in phone_numbers
+        ]
+
+
+def load_chats(msgdb_cursor, output_chat_directory, phone_numbers, wadb_cursor):
+    if not os.path.exists(output_chat_directory):
+        os.makedirs(output_chat_directory)
+    if not phone_numbers:
+        return chat_builder.build_all_chats(msgdb_cursor, wadb_cursor)
+    else:
+        return [
+            chat_builder.build_chat_for_given_id_or_phone_number(
+                msgdb_cursor, wadb_cursor, phone_number=phone_number
+            ) for phone_number in phone_numbers
+        ]
+
+
 def export_call_logs(call_log: CallLog, folder: str, output_style: str):
     if call_log.calls:
         if output_style == "raw_txt":
@@ -86,37 +112,14 @@ def main(
         output_call_logs_directory = output_dir + CALL_LOGS_DIR
 
         if "chats" in conversation_types:
-            if not os.path.exists(output_chat_directory):
-                os.makedirs(output_chat_directory)
-        if "call_logs" in conversation_types:
-            if not os.path.exists(output_call_logs_directory):
-                os.makedirs(output_call_logs_directory)
+            chats = load_chats(msgdb_cursor, output_chat_directory, phone_numbers, wadb_cursor)
+            for chat in tqdm(chats):
+                export_chat(chat=chat, folder=output_chat_directory, output_style=output_style)
 
-        if not phone_numbers:
-            if "chats" in conversation_types:
-                chats = chat_builder.build_all_chats(msgdb_cursor, wadb_cursor)
-                for chat in tqdm(chats):
-                    export_chat(chat=chat, folder=output_chat_directory, output_style=output_style)
-            if "call_logs" in conversation_types:
-                call_logs = call_log_builder.build_all_call_logs(msgdb_cursor, wadb_cursor)
-                for call_log in tqdm(call_logs):
-                    export_call_logs(
-                        call_log=call_log, folder=output_call_logs_directory, output_style=output_style
-                    )
-        else:
-            for phone_number in tqdm(phone_numbers):
-                if "chats" in conversation_types:
-                    chat = chat_builder.build_chat_for_given_id_or_phone_number(
-                        msgdb_cursor, wadb_cursor, phone_number=phone_number
-                    )
-                    export_chat(chat=chat, folder=output_chat_directory, output_style=output_style)
-                if "call_logs" in conversation_types:
-                    call_log = call_log_builder.build_call_log_for_given_id_or_phone_number(
-                        msgdb_cursor, wadb_cursor, phone_number=phone_number
-                    )
-                    export_call_logs(
-                        call_log=call_log, folder=output_call_logs_directory, output_style=output_style
-                    )
+        if "call_logs" in conversation_types:
+            call_logs = load_call_logs(msgdb_cursor, output_call_logs_directory, phone_numbers, wadb_cursor)
+            for call_log in tqdm(call_logs):
+                export_call_logs(call_log=call_log, folder=output_call_logs_directory, output_style=output_style)
 
     finally:
         close_db_connections([msgdb, wadb])
