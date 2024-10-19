@@ -38,7 +38,7 @@ def chat_to_txt_formatted(chat: Chat, folder: str) -> None:
         file.write(f"{chat_title_details}\n\n{messages}")
 
 
-def get_message_str(chat, idx, message):
+def get_message_str(chat, idx, message) -> str:
     date_time = datetime.fromtimestamp(int(message.timestamp) / 1000)
     sender_name = resolve_sender_name(msg=message)
     message_str = (
@@ -65,7 +65,7 @@ def get_message_str(chat, idx, message):
     return message_str
 
 
-def get_orig_message_str(orig_message):
+def get_orig_message_str(orig_message: Message) -> str:
     # Check if the reply is given to a deleted message
     # If orig_message is None, we can assume that the original message was deleted
     if orig_message:
@@ -123,7 +123,7 @@ def resolve_sender_name(msg: Message) -> str:
     return sender_name
 
 
-def get_chat_title_details(chat):
+def get_chat_title_details(chat: Chat) -> str:
     if isinstance(chat.chat_title, Contact):
         if chat.chat_title.name and chat.chat_title.number:
             chat_title_details = f"{chat.chat_title.name} ({chat.chat_title.number})"

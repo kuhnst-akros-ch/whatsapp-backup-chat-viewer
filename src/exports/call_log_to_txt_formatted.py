@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from src.models import CallLog
+from src.models import CallLog, Call
 
 
 def call_log_to_txt_formatted(call_log: CallLog, folder: str) -> None:
@@ -38,7 +38,7 @@ def call_log_to_txt_formatted(call_log: CallLog, folder: str) -> None:
         file.write(f"{caller_id_details}\n\n{call_logs}")
 
 
-def call_to_me_formatted(call, caller_id_details, date_time):
+def call_to_me_formatted(call: Call, caller_id_details : str, date_time: str) -> str:
     return (
         f"[{date_time}]: {caller_id_details} ----> Me\n\t>>> Call Type: 📹 - Video Call\n\t>>> Duration: {seconds_to_hms(duration_in_sec=call.duration)}\n\t>>> Status: {call.call_result}"
         if call.video_call
@@ -46,7 +46,7 @@ def call_to_me_formatted(call, caller_id_details, date_time):
     )
 
 
-def call_from_me_formatted(call, caller_id_details, date_time):
+def call_from_me_formatted(call: Call, caller_id_details: str, date_time: str) -> str:
     return (
         f"[{date_time}]: Me ----> {caller_id_details}\n\t>>> Call Type: 📹 - Video Call\n\t>>> Duration: {seconds_to_hms(duration_in_sec=call.duration)}\n\t>>> Status: {call.call_result}"
         if call.video_call
