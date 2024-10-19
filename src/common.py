@@ -15,4 +15,7 @@ def contact_resolver(
     Returns:
         Contact or None
     """
-    return contacts.get(raw_string_jid)
+    contact = contacts.get(raw_string_jid)
+    if contact:
+        return contact
+    return Contact(raw_string_jid=raw_string_jid, name=None, number=None)

@@ -84,10 +84,10 @@ def build_chat_for_given_id_or_phone_number(
         raise AssertionError("'chat_row_id' and 'phone_number' both cannot be None")
 
     contact = contact_resolver(contacts=contacts, raw_string_jid=raw_string_jid)
-    if contact.number:
-        chat["chat_title"] = contact
-    else:
+    if contact.name and not contact.number:
         chat["chat_title"] = GroupName(raw_string_jid=raw_string_jid, name=contact.name)
+    else:
+        chat["chat_title"] = contact
 
     query = f"""SELECT message._id FROM 'message' WHERE message.chat_row_id={chat.get("chat_id")}"""
     execution = msgdb_cursor.execute(query)
