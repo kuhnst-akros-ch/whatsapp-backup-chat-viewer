@@ -111,16 +111,13 @@ def resolve_sender_name(msg: Message) -> str:
         str: sender_name
     """
     if msg.from_me:
-        sender_name = "Me"
+        return "Me"
+    elif msg.sender_contact.name is not None:
+        return msg.sender_contact.name
     else:
-        sender_name = (
-            msg.sender_contact.name
-            if msg.sender_contact.name is not None
-            else msg.sender_contact.raw_string_jid[
-                 : msg.sender_contact.raw_string_jid.index("@")
-                 ]
-        )
-    return sender_name
+        return msg.sender_contact.raw_string_jid[
+               : msg.sender_contact.raw_string_jid.index("@")
+               ]
 
 
 def get_chat_title_details(chat: Chat) -> str:
