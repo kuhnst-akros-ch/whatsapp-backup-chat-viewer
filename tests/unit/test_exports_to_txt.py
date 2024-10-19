@@ -1,5 +1,5 @@
-import src.exports.call_logs_to_txt_formatted
-from src.exports.chats_to_txt_formatted import chat_to_txt_formatted
+import src.exports.call_log_to_txt_formatted
+from src.exports.chat_to_txt_formatted import chat_to_txt_formatted
 from src.exports import to_txt_raw
 from src.models import (
     Call,
@@ -238,7 +238,7 @@ def test_export_call_logs_to_txt_formatted(tmp_path):
 
     test_call_log_dir = tmp_path / "call_logs"
     test_call_log_dir.mkdir()
-    src.exports.call_logs_to_txt_formatted.call_log_to_txt_formatted(
+    src.exports.call_log_to_txt_formatted.call_log_to_txt_formatted(
         call_log=test_call_log, folder=f"{test_call_log_dir}"
     )
     with open(
