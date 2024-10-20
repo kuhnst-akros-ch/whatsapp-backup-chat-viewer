@@ -55,5 +55,6 @@ def call_log_to_json(call_log: CallLog, folder: str) -> None:
     else:
         caller_id_details = call_log.caller_id.raw_string_jid
 
-    with open(f"{folder}/{caller_id_details}.json", "w", encoding="utf8") as file:
+    file_name = caller_id_details.replace("/", "_") + ".json"
+    with open(f"{folder}/{file_name}", "w", encoding="utf8") as file:
         json.dump(asdict(call_log), file, sort_keys=True, indent=4, ensure_ascii=False)

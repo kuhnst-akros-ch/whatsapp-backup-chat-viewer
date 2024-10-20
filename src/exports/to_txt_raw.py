@@ -46,8 +46,10 @@ def call_log_to_txt_raw(call_log: CallLog, folder: str) -> None:
     elif call_log.caller_id.number:
         caller_id_details = call_log.caller_id.number
     else:
-        call_log.caller_id.raw_string_jid
+        caller_id_details = call_log.caller_id.raw_string_jid
 
     call_logs = "\n".join([str(call) for call in call_log.calls])
-    with open(f"{folder}/{caller_id_details}-raw.txt", "w", encoding="utf-8") as file:
+
+    file_name = caller_id_details.replace("/", "_") + "-raw.txt"
+    with open(f"{folder}/{file_name}", "w", encoding="utf-8") as file:
         file.write(f"{caller_id_details}\n\n{call_logs}")

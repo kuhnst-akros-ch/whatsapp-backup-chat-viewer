@@ -36,7 +36,9 @@ def call_log_to_txt_formatted(call_log: CallLog, folder: str) -> None:
             call_log_list.append(call_log_str)
 
     call_logs = "\n".join(call_log_list)
-    with open(f"{folder}/{caller_id_details}.txt", "w", encoding="utf-8") as file:
+
+    file_name = caller_id_details.replace("/", "_") + ".txt"
+    with open(f"{folder}/{file_name}", "w", encoding="utf-8") as file:
         file.write(f"{caller_id_details}\n\n{call_logs}")
 
 
