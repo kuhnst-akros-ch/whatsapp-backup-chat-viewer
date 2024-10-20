@@ -13,7 +13,5 @@ curl -X POST http://localhost:5000/whatsapp-backup-chat-viewer \
             ],
             "output_style": "formatted_txt",
             "output_dir": "output",
-            "phone_number_filter": [
-              "all"
-            ]
+            "phone_number_filter": []
         }'

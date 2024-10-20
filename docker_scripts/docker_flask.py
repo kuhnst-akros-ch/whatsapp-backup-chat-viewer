@@ -23,16 +23,19 @@ def run_script():
 
 	# Call the script with the provided paths
 	command = [
-		"python", "main.py",
-		"--msgdb", request.json.get('msgdb'),
-		"--wadb", request.json.get('wadb'),
-		"--conversation_types", request.json.get('conversation_types', 'both'),
-		"--output_style", request.json.get('output_style', 'raw_txt'),
-		"--output_dir", request.json.get('output_dir')
-	]
-	for phone_number_filter in request.json.get('phone_number_filter', ['all']):
+	  "python", "main.py",
+	  "--msgdb", request.json.get('msgdb'),
+	  "--wadb", request.json.get('wadb'),
+	  "--output_style", request.json.get('output_style', 'formatted_txt'),
+	  "--output_dir", request.json.get('output_dir'),
+	  "--conversation_types"
+	] + request.json.get('conversation_types', ['chats', 'call_logs'])
+
+	# Add phone_number_filter if provided
+	phone_number_filters = request.json.get('phone_number_filter', [])
+	if phone_number_filters:
 		command.append("--phone_number_filter")
-		command.append(phone_number_filter)
+		command += phone_number_filters
 
 	result = subprocess.run(command, capture_output=True, text=True)
 
