@@ -8,7 +8,7 @@ from .resolver import (
     chat_resolver,
     geo_position_resolver,
     media_resolver,
-    message_resolver,
+    message_resolver, group_chat_participant_jid_resolver,
 )
 
 
@@ -96,6 +96,15 @@ def build_chat_for_given_id_or_phone_number(
         build_message_for_given_id(msgdb_cursor, contacts, message_id)
         for message_id in res_query
     ]
+
+    chat_participant_jids = group_chat_participant_jid_resolver(msgdb_cursor=msgdb_cursor, chat_jid_raw_string=raw_string_jid)
+    # add contacts from messages
+    for message in chat['messages']:
+        if not message.from_me and message.sender_contact:
+            chat_participant_jids.append(message.sender_contact.raw_string_jid)
+    # unique participants
+    chat['participants'] = [contact_resolver(contacts, jid) for jid in set(chat_participant_jids)]
+
 
     return Chat(**chat)
 

@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from src.common import contact_to_str
 from src.models import CallLog, Call
 
 
@@ -15,12 +16,7 @@ def call_log_to_txt_formatted(call_log: CallLog, folder: str) -> None:
     """
     call_log_list = []
 
-    if call_log.caller_id.name and call_log.caller_id.number:
-        caller_id_details = f"{call_log.caller_id.name} ({call_log.caller_id.number})"
-    elif call_log.caller_id.number:
-        caller_id_details = call_log.caller_id.number
-    else:
-        caller_id_details = call_log.caller_id.raw_string_jid
+    caller_id_details = contact_to_str(call_log.caller_id)
 
     for call in call_log.calls:
         if call:

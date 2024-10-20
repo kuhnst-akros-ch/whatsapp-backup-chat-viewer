@@ -1,5 +1,6 @@
 from typing import Dict, List
 
+from src.common import contact_to_str
 from src.models import Contact
 
 def contacts_to_txt_formatted(contacts: Dict[str, List[Contact]], file_name: str) -> None:
@@ -10,12 +11,7 @@ def contacts_to_txt_formatted(contacts: Dict[str, List[Contact]], file_name: str
         for contact in contact_list:
             # if contact.number and contact.raw_string_jid.endswith('@s.whatsapp.net'):
             if contact.number:
-                if contact.name and contact.number:
-                    lines.append(f"{contact.name} ({contact.number}) {contact.raw_string_jid}\n")
-                elif contact.number:
-                    lines.append(f"{contact.number} {contact.raw_string_jid}\n")
-                else:
-                    lines.append(f"{contact.raw_string_jid}\n")
+                lines.append(contact_to_str(contact))
 
     # Sort the collected lines alphabetically
     lines.sort()

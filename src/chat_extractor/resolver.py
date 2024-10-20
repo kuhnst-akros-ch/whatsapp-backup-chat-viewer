@@ -1,5 +1,8 @@
 import sqlite3
-from typing import Any, Dict, Tuple, Union
+from itertools import chain
+from typing import Any, Dict, Tuple, Union, List
+
+from src.models import Contact
 
 
 def media_resolver(msgdb_cursor: sqlite3.Cursor, message_row_id: int) -> Dict[str, Any] | None:
@@ -116,3 +119,33 @@ def chat_resolver(
     res = dict(zip([col[0] for col in execution.description], res_query))
     raw_string_jid = res.pop("raw_string_jid")
     return res, raw_string_jid
+
+
+def group_chat_participant_jid_resolver(
+        msgdb_cursor: sqlite3.Cursor, chat_jid_raw_string: str
+) -> List[Contact]:
+    # Define the query
+    msgdb_query = f"""
+        SELECT	jid
+        FROM	group_participants
+        WHERE	group_participants.jid is not NULL
+                AND
+                group_participants.jid != ''
+                AND
+                group_participants.gjid = '{chat_jid_raw_string}'
+        UNION
+        
+        SELECT	jid
+        FROM	group_participants_history
+        WHERE	group_participants_history.jid is not NULL
+                AND
+                group_participants_history.jid != ''
+                AND
+                group_participants_history.gjid = '{chat_jid_raw_string}'
+    """
+
+    # Execute the query using the existing cursor
+    execution = msgdb_cursor.execute(msgdb_query)
+
+    # Fetch all rows
+    return list(chain.from_iterable(execution.fetchall()))

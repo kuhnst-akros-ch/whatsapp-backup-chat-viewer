@@ -27,7 +27,7 @@ class GroupName(ContactOrChatBase):
 
 @define
 class Media(object):
-    message_id: int  # Which message does this media belong to. Resolved from `message_media.message_row_id`.
+    message_id: int  # Which message does this medium belong to. Resolved from `message_media.message_row_id`.
     media_job_uuid: str  # Resolved from `message_media.media_job_uuid`.
     file_path: str  # Resolved from `message_media.file_path`.
     mime_type: str  # Resolved from `message_media.mime_type`.
@@ -35,7 +35,7 @@ class Media(object):
 
 @define
 class GeoPosition(object):
-    message_id: int  # Which message does this media belong to. Resolved from `message_location.message_row_id`.
+    message_id: int  # Which message does this medium belong to. Resolved from `message_location.message_row_id`.
     latitude: float  # Resolved from `message_location.latitude`.
     longitude: float  # Resolved from `message_location.longitude`.
 
@@ -61,6 +61,7 @@ class Chat(object):
     chat_id: int  # Chat ID. Resolved from `chat._id`.
     chat_title: Optional[Union[Contact, GroupName]]  # Chat title.
     messages: List[Optional[Message]]
+    participants: List[Contact]
 
 
 @define

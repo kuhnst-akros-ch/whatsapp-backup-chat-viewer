@@ -143,9 +143,6 @@ def main(
         if "contacts" in conversation_types:
             contacts_to_txt_formatted(contacts=contacts, file_name=output_contacts_file)
 
-
-    except Exception as e:
-        print(f"An error occurred: {e}")
     finally:
         close_db_connections([msgdb])
 

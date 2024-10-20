@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Callable, List, Generator
 
+from src.common import contact_to_str
 from src.models import Chat, Message, Contact, GroupName
 
 
@@ -33,11 +34,17 @@ def chat_to_txt_formatted(chat: Chat, folder: str) -> None:
 
     chat_title_details = get_chat_title_details(chat)
 
+    # list all participants for group-chats
+    if isinstance(chat.chat_title, GroupName):
+        participants_details = get_chat_participants_details(chat)
+    else:
+        participants_details = ''
+
     messages = "\n".join(message_list)
 
     file_name = chat_title_details.replace("/", "_") + ".txt"
     with open(f"{folder}/{file_name}", "w", encoding="utf-8") as file:
-        file.write(f"{chat_title_details}\n\n{messages}")
+        file.write(f"{chat_title_details}{participants_details}\n\n{messages}")
 
 
 def get_message_str(chat, idx, message) -> str:
@@ -114,24 +121,23 @@ def resolve_sender_name(msg: Message) -> str:
     """
     if msg.from_me:
         return "Me"
-    elif msg.sender_contact.name and msg.sender_contact.number:
-        return f"{msg.sender_contact.name} ({msg.sender_contact.number})"
-    elif msg.sender_contact.number:
-        return msg.sender_contact.number
     else:
-        return msg.sender_contact.raw_string_jid
+        return contact_to_str(msg.sender_contact)
 
 
 def get_chat_title_details(chat: Chat) -> str:
     if isinstance(chat.chat_title, Contact):
-        if chat.chat_title.name and chat.chat_title.number:
-            chat_title_details = f"{chat.chat_title.name} ({chat.chat_title.number})"
-        elif chat.chat_title.number:
-            chat_title_details = chat.chat_title.number
-        else:
-            chat_title_details = chat.chat_title.raw_string_jid
+        chat_title_details = contact_to_str(chat.chat_title)
     elif isinstance(chat.chat_title, GroupName):
         chat_title_details = f"{chat.chat_title.name}"
     else:
         chat_title_details = ""
     return chat_title_details
+
+
+def get_chat_participants_details(chat: Chat) -> str:
+    if not chat.participants:
+        return ""
+    contacts_str = [contact_to_str(contact) for contact in chat.participants]
+    contacts_str.sort()
+    return '\n' + '\n'.join(contacts_str)

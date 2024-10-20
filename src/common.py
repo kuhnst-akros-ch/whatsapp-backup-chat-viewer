@@ -21,3 +21,12 @@ def contact_resolver(
         return contact[-1]
     # return a new contact with just jid
     return Contact(raw_string_jid=raw_string_jid, name=None, number=None)
+
+
+def contact_to_str(contact: Contact) -> str:
+    if contact.name and contact.number:
+        return f"{contact.name} ({contact.number})"
+    elif contact.number:
+        return contact.number
+    else:
+        return contact.raw_string_jid
