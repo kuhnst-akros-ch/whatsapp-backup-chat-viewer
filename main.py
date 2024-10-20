@@ -1,7 +1,6 @@
 import argparse
 import os
 import sqlite3
-import sys
 from typing import List, Generator, Tuple, Dict
 
 from tqdm import tqdm
@@ -153,9 +152,6 @@ def main(
 
 if __name__ == "__main__":
 
-    # Print all arguments before using argparse
-    print("Script arguments before argparse:", sys.argv)
-
     ap = argparse.ArgumentParser(
         description="Project to extract Whatsapp conversations and/or call logs from the app's SQLite database and exporting them as JSON or TXT files."
     )
@@ -196,9 +192,6 @@ if __name__ == "__main__":
         help="Phone numbers (format: XXXXXXXXXXXX) of the chats and/or call logs that you want to extract from the database. Empty means all phone numbers",
     )
     args = ap.parse_args()
-
-    # Print the parsed arguments
-    print("Parsed arguments after argparse:", vars(args))
 
     main(
         msgdb_path=args.msgdb,

@@ -9,7 +9,8 @@ curl -X POST http://localhost:5000/whatsapp-backup-chat-viewer \
             "wadb": "whatsapp_backup/databases/wa.db",
             "conversation_types": [
               "chats",
-              "call_logs"
+              "call_logs",
+              "contacts"
             ],
             "output_style": "formatted_txt",
             "output_dir": "output",
