@@ -162,11 +162,11 @@ if __name__ == "__main__":
     ap.add_argument(
         "--conversation_types",
         "-t",
-        choices=["chats", "call_logs"],
+        choices=["call_logs", "chats"],
         nargs="+",
         type=str,
-        default=["chats", "call_logs"],
-        help="Backup only chats, only call_logs, or both (by providing both)",
+        default=["call_logs", "chats"],
+        help="Backup only call_logs, only chats, or both (by providing both)",
     )
     ap.add_argument(
         "--output_style",

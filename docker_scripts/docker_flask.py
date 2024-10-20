@@ -29,7 +29,7 @@ def run_script():
 	  "--output_style", request.json.get('output_style', 'formatted_txt'),
 	  "--output_dir", request.json.get('output_dir'),
 	  "--conversation_types"
-	] + request.json.get('conversation_types', ['chats', 'call_logs'])
+	] + request.json.get('conversation_types', ['call_logs', 'chats'])
 
 	# Add phone_number_filter if provided
 	phone_number_filters = request.json.get('phone_number_filter', [])
