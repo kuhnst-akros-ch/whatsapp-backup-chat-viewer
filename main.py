@@ -51,7 +51,7 @@ def load_call_logs(
         msgdb_cursor: sqlite3.Cursor,
         output_call_logs_directory: str,
         phone_numbers: List[str],
-        contacts: Dict[str, Contact]
+        contacts: Dict[str, List[Contact]]
 ) -> [Generator[CallLog, None, None]]:
     if not os.path.exists(output_call_logs_directory):
         os.makedirs(output_call_logs_directory)
@@ -69,7 +69,7 @@ def load_chats(
         msgdb_cursor: sqlite3.Cursor,
         output_chat_directory: str,
         phone_numbers: List[str],
-        contacts: Dict[str, Contact]
+        contacts: Dict[str, List[Contact]]
 ) -> [Generator[Chat, None, None]]:
     if not os.path.exists(output_chat_directory):
         os.makedirs(output_chat_directory)

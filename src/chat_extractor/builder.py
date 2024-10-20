@@ -1,6 +1,6 @@
 import sqlite3
 from itertools import chain
-from typing import Generator, Union, Dict
+from typing import Generator, Union, Dict, List
 
 from ..common import contact_resolver
 from ..models import Chat, Contact, GeoPosition, GroupName, Media, Message
@@ -13,7 +13,7 @@ from .resolver import (
 
 
 def build_message_for_given_id(
-    msgdb_cursor: sqlite3.Cursor, contacts: Dict[str, Contact], message_id: int
+    msgdb_cursor: sqlite3.Cursor, contacts: Dict[str, List[Contact]], message_id: int
 ) -> Message:
     """Extract text message, media (if available) and location (if available) for a given message_id.
 
@@ -21,7 +21,7 @@ def build_message_for_given_id(
 
     Args:
         msgdb_cursor (sqlite3.Cursor): The cursor for the 'msgdb' database.
-        contacts (Dict[str, Contact]): Dict of all contacts and jid as key.
+        contacts (Dict[str, List[Contact]]): Dict of all contacts and jid as key.
         message_id (int): The message id of the message you want to extract.
 
     Returns:
@@ -55,7 +55,7 @@ def build_message_for_given_id(
 
 def build_chat_for_given_id_or_phone_number(
     msgdb_cursor: sqlite3.Cursor,
-    contacts: Dict[str, Contact],
+    contacts: Dict[str, List[Contact]],
     chat_row_id: int = None,
     phone_number: str = None,
 ) -> Union[Chat, None]:
@@ -65,7 +65,7 @@ def build_chat_for_given_id_or_phone_number(
 
     Args:
         msgdb_cursor (sqlite3.Cursor): The cursor for the 'msgdb' database.
-        contacts (Dict[str, Contact]): Dict of all contacts and jid as key.
+        contacts (Dict[str, List[Contact]]): Dict of all contacts and jid as key.
         chat_row_id (int): ID of the chat to extract. Defaults to None.
         phone_number (str): Phone Number of the person you want to extract the chats of. Defaults to None.
 
@@ -101,7 +101,7 @@ def build_chat_for_given_id_or_phone_number(
 
 
 def build_all_chats(
-    msgdb_cursor: sqlite3.Cursor, contacts: Dict[str, Contact]
+    msgdb_cursor: sqlite3.Cursor, contacts: Dict[str, List[Contact]]
 ) -> Generator[Chat, None, None]:
     """Extract all chats in the msgdb database.
 
@@ -110,7 +110,7 @@ def build_all_chats(
 
     Args:
         msgdb_cursor (sqlite3.Cursor): The cursor for the 'msgdb' database.
-        contacts (Dict[str, Contact]): Dict of all contacts and jid as key.
+        contacts (Dict[str, List[Contact]]): Dict of all contacts and jid as key.
 
     Return:
         A generator of Chat objects.

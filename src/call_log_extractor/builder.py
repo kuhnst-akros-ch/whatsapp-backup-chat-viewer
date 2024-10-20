@@ -1,6 +1,6 @@
 import sqlite3
 from itertools import chain
-from typing import Generator, Union, Dict
+from typing import Generator, Union, Dict, List
 
 from ..common import contact_resolver
 from ..models import Call, CallLog, Contact
@@ -29,7 +29,7 @@ def build_call_for_given_id(
 
 def build_call_log_for_given_id_or_phone_number(
     msgdb_cursor: sqlite3.Cursor,
-    contacts: Dict[str, Contact],
+    contacts: Dict[str, List[Contact]],
     jid_row_id: int = None,
     phone_number: str = None,
 ) -> Union[CallLog, None]:
@@ -37,7 +37,7 @@ def build_call_log_for_given_id_or_phone_number(
 
     Args:
         msgdb_cursor (sqlite3.Cursor): 'msgdb' cursor.
-        contacts (Dict[str, Contact]): Dict of all contacts and jid as key.
+        contacts (Dict[str, List[Contact]]): Dict of all contacts and jid as key.
         jid_row_id (int, optional): jid of the call_log to extract. Defaults to None.
         phone_number (str, optional): Phone Number of the person you want to extract the call_logs of. Defaults to None.
 
@@ -70,13 +70,13 @@ def build_call_log_for_given_id_or_phone_number(
 
 
 def build_all_call_logs(
-    msgdb_cursor: sqlite3.Cursor, contacts: Dict[str, Contact]
+    msgdb_cursor: sqlite3.Cursor, contacts: Dict[str, List[Contact]]
 ) -> Generator[CallLog, None, None]:
     """Extract all call_logs in the msgdb database.
 
     Args:
         msgdb_cursor (sqlite3.Cursor): 'msgdb' cursor.
-        contacts (Dict[str, Contact]): Dict of all contacts and jid as key.
+        contacts (Dict[str, List[Contact]]): Dict of all contacts and jid as key.
 
     Returns:
         A generator of CallLog objects
