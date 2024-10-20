@@ -137,6 +137,10 @@ def main(
             call_logs = load_call_logs(msgdb_cursor, output_call_logs_directory, phone_numbers, contacts)
             for call_log in tqdm(call_logs):
                 export_call_log(call_log=call_log, folder=output_call_logs_directory, output_style=output_style)
+
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
     finally:
         close_db_connections([msgdb])
 
