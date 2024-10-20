@@ -114,20 +114,22 @@ def resolve_sender_name(msg: Message) -> str:
     """
     if msg.from_me:
         return "Me"
-    elif msg.sender_contact.name is not None:
-        return msg.sender_contact.name
+    elif msg.sender_contact.name and msg.sender_contact.number:
+        return f"{msg.sender_contact.name} ({msg.sender_contact.number})"
+    elif msg.sender_contact.number:
+        return msg.sender_contact.number
     else:
-        return msg.sender_contact.raw_string_jid[
-               : msg.sender_contact.raw_string_jid.index("@")
-               ]
+        return msg.sender_contact.raw_string_jid
 
 
 def get_chat_title_details(chat: Chat) -> str:
     if isinstance(chat.chat_title, Contact):
         if chat.chat_title.name and chat.chat_title.number:
             chat_title_details = f"{chat.chat_title.name} ({chat.chat_title.number})"
+        elif chat.chat_title.number:
+            chat_title_details = chat.chat_title.number
         else:
-            chat_title_details = f"+{chat.chat_title.raw_string_jid.split('@')[0]}"
+            chat_title_details = chat.chat_title.raw_string_jid
     elif isinstance(chat.chat_title, GroupName):
         chat_title_details = f"{chat.chat_title.name}"
     else:

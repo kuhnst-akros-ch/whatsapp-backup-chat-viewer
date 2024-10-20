@@ -21,8 +21,10 @@ def chat_to_json(chat: Chat, folder: str) -> None:
     if isinstance(chat.chat_title, Contact):
         if chat.chat_title.name and chat.chat_title.number:
             chat_title_details = f"{chat.chat_title.name} ({chat.chat_title.number})"
+        elif chat.chat_title.number:
+            chat_title_details = chat.chat_title.number
         else:
-            chat_title_details = f"+{chat.chat_title.raw_string_jid.split('@')[0]}"
+            chat_title_details = chat.chat_title.raw_string_jid
     elif isinstance(chat.chat_title, GroupName):
         chat_title_details = f"{chat.chat_title.name}"
     else:
@@ -48,8 +50,10 @@ def call_log_to_json(call_log: CallLog, folder: str) -> None:
     """
     if call_log.caller_id.name and call_log.caller_id.number:
         caller_id_details = f"{call_log.caller_id.name} ({call_log.caller_id.number})"
+    elif call_log.caller_id.number:
+        caller_id_details = call_log.caller_id.number
     else:
-        caller_id_details = f"+{call_log.caller_id.raw_string_jid.split('@')[0]}"
+        caller_id_details = call_log.caller_id.raw_string_jid
 
     with open(f"{folder}/{caller_id_details}.json", "w", encoding="utf8") as file:
         json.dump(asdict(call_log), file, sort_keys=True, indent=4, ensure_ascii=False)

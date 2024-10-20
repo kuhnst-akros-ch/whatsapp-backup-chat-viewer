@@ -15,8 +15,10 @@ def chat_to_txt_raw(chat: Chat, folder: str) -> None:
     if isinstance(chat.chat_title, Contact):
         if chat.chat_title.name and chat.chat_title.number:
             chat_title_details = f"{chat.chat_title.name} ({chat.chat_title.number})"
+        elif chat.chat_title.number:
+            chat_title_details = chat.chat_title.number
         else:
-            chat_title_details = f"+{chat.chat_title.raw_string_jid.split('@')[0]}"
+            chat_title_details = chat.chat_title.raw_string_jid
     elif isinstance(chat.chat_title, GroupName):
         chat_title_details = f"{chat.chat_title.name}"
     else:
@@ -41,8 +43,10 @@ def call_log_to_txt_raw(call_log: CallLog, folder: str) -> None:
     """
     if call_log.caller_id.name and call_log.caller_id.number:
         caller_id_details = f"{call_log.caller_id.name} ({call_log.caller_id.number})"
+    elif call_log.caller_id.number:
+        caller_id_details = call_log.caller_id.number
     else:
-        caller_id_details = f"+{call_log.caller_id.raw_string_jid.split('@')[0]}"
+        call_log.caller_id.raw_string_jid
 
     call_logs = "\n".join([str(call) for call in call_log.calls])
     with open(f"{folder}/{caller_id_details}-raw.txt", "w", encoding="utf-8") as file:

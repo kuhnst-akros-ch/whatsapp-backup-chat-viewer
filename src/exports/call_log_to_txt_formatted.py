@@ -17,8 +17,10 @@ def call_log_to_txt_formatted(call_log: CallLog, folder: str) -> None:
 
     if call_log.caller_id.name and call_log.caller_id.number:
         caller_id_details = f"{call_log.caller_id.name} ({call_log.caller_id.number})"
+    elif call_log.caller_id.number:
+        caller_id_details = call_log.caller_id.number
     else:
-        caller_id_details = f"+{call_log.caller_id.raw_string_jid.split('@')[0]}"
+        caller_id_details = call_log.caller_id.raw_string_jid
 
     for call in call_log.calls:
         if call:

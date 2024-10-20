@@ -142,7 +142,7 @@ def main(
                 export_chat(chat=chat, folder=output_chat_directory, output_style=output_style)
 
         if "contacts" in conversation_types:
-            contacts_to_txt_formatted(contacts=contacts, file=output_contacts_file)
+            contacts_to_txt_formatted(contacts=contacts, file_name=output_contacts_file)
 
 
     except Exception as e:
