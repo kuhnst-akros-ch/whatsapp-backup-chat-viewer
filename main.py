@@ -9,14 +9,16 @@ from tqdm import tqdm
 from src.call_log_extractor import builder as call_log_builder
 from src.chat_extractor import builder as chat_builder
 from src.contact_extractor import builder as contact_builder
+from src.exports.call_log_to_txt_formatted import call_log_to_txt_formatted
+from src.exports.chat_to_txt_formatted import chat_to_txt_formatted
+from src.exports.contacts_to_txt_formatted import contacts_to_txt_formatted
 from src.exports.to_json import call_log_to_json, chat_to_json
 from src.exports.to_txt_raw import call_log_to_txt_raw, chat_to_txt_raw
-from src.exports.chat_to_txt_formatted import chat_to_txt_formatted
-from src.exports.call_log_to_txt_formatted import call_log_to_txt_formatted
 from src.models import Chat, CallLog, Contact
 
 CALL_LOGS_DIR = "/call_logs"
 CHAT_DIR = "/chats"
+CONTACTS_FIlE = "/contacts.txt"
 
 
 def create_db_connection(file_path: str) -> Tuple[sqlite3.Connection, sqlite3.Cursor]:
@@ -125,18 +127,22 @@ def main(
 
     msgdb, msgdb_cursor = create_db_connection(msgdb_path)
     try:
-        output_chat_directory = output_dir + CHAT_DIR
         output_call_logs_directory = output_dir + CALL_LOGS_DIR
+        output_chat_directory = output_dir + CHAT_DIR
+        output_contacts_file = output_dir + CONTACTS_FIlE
+
+        if "call_logs" in conversation_types:
+            call_logs = load_call_logs(msgdb_cursor, output_call_logs_directory, phone_numbers, contacts)
+            for call_log in tqdm(call_logs):
+                export_call_log(call_log=call_log, folder=output_call_logs_directory, output_style=output_style)
 
         if "chats" in conversation_types:
             chats = load_chats(msgdb_cursor, output_chat_directory, phone_numbers, contacts)
             for chat in tqdm(chats):
                 export_chat(chat=chat, folder=output_chat_directory, output_style=output_style)
 
-        if "call_logs" in conversation_types:
-            call_logs = load_call_logs(msgdb_cursor, output_call_logs_directory, phone_numbers, contacts)
-            for call_log in tqdm(call_logs):
-                export_call_log(call_log=call_log, folder=output_call_logs_directory, output_style=output_style)
+        if "contacts" in conversation_types:
+            contacts_to_txt_formatted(contacts=contacts, file=output_contacts_file)
 
 
     except Exception as e:
@@ -162,10 +168,10 @@ if __name__ == "__main__":
     ap.add_argument(
         "--conversation_types",
         "-t",
-        choices=["call_logs", "chats"],
+        choices=["call_logs", "chats", "contacts"],
         nargs="+",
         type=str,
-        default=["call_logs", "chats"],
+        default=["call_logs", "chats", "contacts"],
         help="Backup only call_logs, only chats, or both (by providing both)",
     )
     ap.add_argument(
