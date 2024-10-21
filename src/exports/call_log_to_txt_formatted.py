@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from src.common import contact_to_str
+from src.common import contact_to_str, contact_to_full_str
 from src.models import CallLog, Call
 
 
@@ -17,6 +17,7 @@ def call_log_to_txt_formatted(call_log: CallLog, folder: str) -> None:
     call_log_list = []
 
     caller_id_details = contact_to_str(call_log.caller_id)
+    caller_id_details_full = contact_to_full_str(call_log.caller_id)
 
     for call in call_log.calls:
         if call:
@@ -33,9 +34,9 @@ def call_log_to_txt_formatted(call_log: CallLog, folder: str) -> None:
 
     call_logs = "\n".join(call_log_list)
 
-    file_name = caller_id_details.replace("/", "_") + ".txt"
+    file_name = contact_to_str(call_log.caller_id).replace("/", "_") + ".txt"
     with open(f"{folder}/{file_name}", "w", encoding="utf-8") as file:
-        file.write(f"{caller_id_details}\n\n{call_logs}")
+        file.write(f"{caller_id_details_full}\n\n{call_logs}")
 
 
 def call_to_me_formatted(call: Call, caller_id_details : str, date_time: str) -> str:

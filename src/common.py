@@ -30,3 +30,13 @@ def contact_to_str(contact: Contact) -> str:
         return contact.number
     else:
         return contact.raw_string_jid
+
+
+# Full contact info
+def contact_to_full_str(contact: Contact) -> str:
+    if contact.name and contact.number:
+        return f"{contact.name} ({contact.number}, {contact.raw_string_jid})"
+    elif contact.number:
+        return f"{contact.number} ({contact.raw_string_jid})"
+    else:
+        return contact.raw_string_jid

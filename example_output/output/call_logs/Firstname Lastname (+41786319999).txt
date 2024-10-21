@@ -1,4 +1,4 @@
-Firstname Lastname (+41786319999)
+Firstname Lastname (+41786319999, 971544759999@s.whatsapp.net)
 
 [2019-01-18 11:30:10]: Me ----> Firstname Lastname (+41786319999)
 	>>> Call Type: 📞 - Voice Call

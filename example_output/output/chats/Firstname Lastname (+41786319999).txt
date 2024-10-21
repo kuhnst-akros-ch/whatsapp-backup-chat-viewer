@@ -1,16 +1,16 @@
-Firstname Lastname (+41786319999)
+Firstname Lastname (+41786319999, 971544759999@s.whatsapp.net)
 
 [2024-05-03 20:10:36.077000] 'Change in the chat settings'
 [2024-05-03 20:10:36.095000] 'Change in the chat settings'
-[2024-05-03 20:10:35.826000]: Firstname Lastname - Hello! 😃 I’m at home 😉
-[2024-05-03 20:10:50.505000]: Firstname Lastname
+[2024-05-03 20:10:35.826000]: Firstname Lastname (+41786319999) - Hello! 😃 I’m at home 😉
+[2024-05-03 20:10:50.505000]: Firstname Lastname (+41786319999)
 	>>> Location: (45.702416015625,11.406912254333496)
 [2024-05-08 08:31:29.258000]: Me - Look at my picture
 	>>> Media: Media/WhatsApp Images/Sent/IMG-20240508-WA0000.jpg
 [2024-05-09 11:49:57.446000]: Me - This message has 3 lines
 Line 2
 Line 3
-[2024-05-09 11:50:12.855000]: Firstname Lastname - Useful information
+[2024-05-09 11:50:12.855000]: Firstname Lastname (+41786319999) - Useful information
 	>>> Reply to: Me - This message has 3 lines Line 2 Line 3
-[2024-05-09 17:12:10.944000]: Firstname Lastname - I’m waiting for you!
+[2024-05-09 17:12:10.944000]: Firstname Lastname (+41786319999) - I’m waiting for you!
 	>>> Reply to: 'Message has been deleted'

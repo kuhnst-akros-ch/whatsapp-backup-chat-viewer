@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Callable, List, Generator
 
-from src.common import contact_to_str
+from src.common import contact_to_str, contact_to_full_str
 from src.models import Chat, Message, Contact, GroupName
 
 
@@ -34,17 +34,18 @@ def chat_to_txt_formatted(chat: Chat, folder: str) -> None:
 
     chat_title_details = get_chat_title_details(chat)
 
-    # list all participants for group-chats
+    # list all participants
+    participants_details = get_chat_participants_details(chat)
+
+    # prepend group-name
     if isinstance(chat.chat_title, GroupName):
-        participants_details = get_chat_participants_details(chat)
-    else:
-        participants_details = ''
+        participants_details = chat_title_details + '\n' + get_chat_participants_details(chat)
 
     messages = "\n".join(message_list)
 
     file_name = chat_title_details.replace("/", "_") + ".txt"
     with open(f"{folder}/{file_name}", "w", encoding="utf-8") as file:
-        file.write(f"{chat_title_details}{participants_details}\n\n{messages}")
+        file.write(f"{participants_details}\n\n{messages}")
 
 
 def get_message_str(chat, idx, message) -> str:
@@ -138,6 +139,6 @@ def get_chat_title_details(chat: Chat) -> str:
 def get_chat_participants_details(chat: Chat) -> str:
     if not chat.participants:
         return ""
-    contacts_str = [contact_to_str(contact) for contact in chat.participants]
+    contacts_str = [contact_to_full_str(contact) for contact in chat.participants]
     contacts_str.sort()
-    return '\n' + '\n'.join(contacts_str)
+    return '\n'.join(contacts_str)

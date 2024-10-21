@@ -1,12 +1,15 @@
 Group-Name
+41787868888@s.whatsapp.net
+41797059999@s.whatsapp.net
+Firstname Lastname (+41786319999, 971544759999@s.whatsapp.net)
 
 [2020-02-07 12:57:09.272000] 'Change in the chat settings'
 [2020-02-07 12:57:09.313000]: Me - Group-Name
 [2020-02-07 12:57:09.333000] 'Change in the chat settings'
 [2020-02-07 12:57:09.399000]: Me - 1581080239
-[2020-02-07 12:57:14.524000]: Firstname Lastname - Hello everyone
+[2020-02-07 12:57:14.524000]: Firstname Lastname (+41786319999) - Hello everyone
 See you soon!
-[2020-02-07 14:01:07.062000]: 41797059999 - Looking forward to it 🤗🤗😘
-[2020-02-07 14:09:06.892000]: 41787868888
+[2020-02-07 14:01:07.062000]: 41787868888@s.whatsapp.net - Looking forward to it 🤗🤗😘
+[2020-02-07 14:09:06.892000]: 41787868888@s.whatsapp.net
 	>>> Media: Media/WhatsApp Voice Notes/202006/PTT-20200207-WA0000.opus
 [2020-02-08 05:59:06.233000] 'Change in the chat settings'
