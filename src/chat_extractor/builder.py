@@ -89,8 +89,8 @@ def build_chat_for_given_id_or_phone_number(
     else:
         chat["chat_title"] = contact
 
-    query = f"""SELECT message._id FROM 'message' WHERE message.chat_row_id={chat.get("chat_id")}"""
-    execution = msgdb_cursor.execute(query)
+    query = "SELECT message._id FROM 'message' WHERE message.chat_row_id=?"
+    execution = msgdb_cursor.execute(query, chat.get("chat_id"))
     res_query = list(chain.from_iterable(execution.fetchall()))
     chat["messages"] = [
         build_message_for_given_id(msgdb_cursor, contacts, message_id)

@@ -12,11 +12,11 @@ def call_resolver(msgdb_cursor: sqlite3.Cursor, call_row_id: int) -> Dict[str, A
     Returns:
         Dict[str, Any]: Dictionary containing 'call_row_id', 'from_me', 'timestamp', 'video_call', 'duration' and 'call_result' keys.
     """
-    msgdb_query = f"""
+    msgdb_query = """
     SELECT call_log._id as call_row_id, call_log.from_me, call_log.timestamp, call_log.video_call, call_log.duration, call_log.call_result
     FROM 'call_log'
-    WHERE call_log._id={call_row_id}"""
-    execution = msgdb_cursor.execute(msgdb_query)
+    WHERE call_log._id=?"""
+    execution = msgdb_cursor.execute(msgdb_query, call_row_id)
     res_query = execution.fetchone()
     if res_query is None:
         return None
@@ -41,19 +41,22 @@ def call_jid_resolver(
         str: 'raw_string_jid' of the person who sent the message.
     """
     if jid_row_id:
-        msgdb_query = f"""
+        msgdb_query = """
         SELECT jid._id as jid_row_id, jid.raw_string as raw_string_jid
         FROM 'jid'
-        WHERE jid._id={jid_row_id}"""
+        WHERE jid._id=?
+        """
+        execution = msgdb_cursor.execute(msgdb_query, jid_row_id)
     elif phone_number:
-        msgdb_query = f"""
+        msgdb_query = """
         SELECT jid._id as jid_row_id, jid.raw_string as raw_string_jid
         FROM 'jid'
-        WHERE jid.raw_string LIKE '%{phone_number}@%'"""
+        WHERE jid.raw_string LIKE ?
+        """
+        execution = msgdb_cursor.execute(msgdb_query, f"%{phone_number}@%")
     else:
         raise AssertionError("'jid_row_id' and 'phone_number' both cannot be None")
 
-    execution = msgdb_cursor.execute(msgdb_query)
     res_query = execution.fetchone()
     if res_query is None:
         res_query = [

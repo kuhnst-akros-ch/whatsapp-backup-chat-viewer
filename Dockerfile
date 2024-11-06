@@ -20,25 +20,24 @@ RUN python3 -m venv venv
 # Ensure the virtual environment is used for all future commands
 ENV PATH="/app/venv/bin:$PATH"
 
-# copy to /app
-COPY \
-    main.py \
-    requirements.txt \
-    docker_scripts/docker-requirements.txt \
-    docker_scripts/docker_flask.py \
-    /app/
-COPY src /app/src
-
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
 # Leverage a bind mount to requirements.txt to avoid having to copy them into
 # into this layer.
 RUN --mount=type=cache,target=/home/appuser/.cache/pip \
-    --mount=type=bind,source=requirements.txt,target=requirements.txt \
-    --mount=type=bind,source=docker_scripts/docker-requirements.txt,target=docker-requirements.txt \
+    --mount=type=bind,source=requirements.txt,target=requirements.txt,readonly \
+    --mount=type=bind,source=docker_scripts/docker-requirements.txt,target=docker-requirements.txt,readonly \
     python -m pip install --upgrade pip \
     && python -m pip install -r requirements.txt \
-    && python -m pip install -r docker-requirements.txt
+    && python -m pip install -r docker-requirements.txt \
+    && rm -rf /tmp/*
+
+# copy to /app
+COPY \
+    main.py \
+    docker_scripts/docker_flask.py \
+    /app/
+COPY src /app/src
 
 # Port for HTTP server
 EXPOSE 5000
