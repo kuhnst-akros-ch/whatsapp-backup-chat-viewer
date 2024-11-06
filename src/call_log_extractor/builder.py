@@ -58,8 +58,8 @@ def build_call_log_for_given_id_or_phone_number(
     contact = contact_resolver(contacts=contacts, raw_string_jid=raw_string_jid)
     call_log["caller_id"] = contact
 
-    query = f"""SELECT call_log._id FROM 'call_log' WHERE call_log.jid_row_id={call_log.get("jid_row_id")}"""
-    execution = msgdb_cursor.execute(query)
+    query = "SELECT call_log._id FROM 'call_log' WHERE call_log.jid_row_id=?"
+    execution = msgdb_cursor.execute(query, (call_log.get("jid_row_id"),))
     res_query = list(chain.from_iterable(execution.fetchall()))
     call_log["calls"] = [
         build_call_for_given_id(msgdb_cursor, call_row_id)
@@ -81,6 +81,7 @@ def build_all_call_logs(
     Returns:
         A generator of CallLog objects
     """
+    # todo check: is it really necessary to scan entire jid table? it's probably used for more than just calls
     query = "SELECT jid._id FROM 'jid'"
     execution = msgdb_cursor.execute(query)
     res_query = list(chain.from_iterable(execution.fetchall()))
