@@ -39,10 +39,4 @@ COPY \
     /app/
 COPY src /app/src
 
-# Port for HTTP server
-EXPOSE 5000
-
-# Start the Flask app with Gunicorn in production mode
-# workers in production should be: (2 cpu-cores * 2) + 1
-# change timeout in both Dockerfile and nginx.conf !
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "5", "--timeout", "300", "--access-logfile", "-", "--error-logfile", "-", "docker_flask:app"]
+CMD ["todo"]

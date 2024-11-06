@@ -36,21 +36,9 @@ The mentioned file paths are in the payload of the request.
 Extracted data will be placed in the `output` folder, wich is also shared with Docker images.
 
 
-# Additional information
-
-## Timeout
-
-The timeout is set in the CMD of the 'Dockerfile' and in 'docker_scripts/nginx.conf' (docker-compose only).
-
-
 ## Parallel extraction
 
 The DB files and the output path are parameters and can be individual per request.
-
-
-## POC for multiple replicas
-
-The `docker-compose.yml` defines 3 replicas and a simple nginx service, which balances (round-robin) requests to the replicas.
 
 
 ## Stack inside the Docker image
