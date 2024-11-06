@@ -65,35 +65,6 @@ If you have an Android phone, your WhatsApp database is stored in a location of 
       $ adb pull /data/data/com.whatsapp/ whatsapp_backup/
       ```
 
-   2. Without rooted phone
-      If you don't wish to root your phone, you can follow these steps to copy all your WhatsApp files to the local directory:
-
-      - Backup all your whatsapp chats by clicking `Backup Now` in settings.
-      - Download enhanced whatsapp app.
-
-        ```
-        $ mkdir tmp
-        $ curl -L -o tmp/EnhancedWhatsApp.apk https://github.com/Dexter2389/whatsapp-backup-chat-viewer/raw/main/assets/EnhancedWhatsApp.apk
-        ```
-
-        <!-- $ curl -L -o tmp/EnhancedWhatsApp.apk http://dl.imobie.com/android/specified-app.apk -->
-
-      - Uninstall existing whatsapp app and install the enhanced app.
-        ```
-        $ adb shell pm uninstall -k com.whatsapp
-        $ adb install -r -d tmp/EnhancedWhatsApp.apk
-        ```
-      - Open the enhanced app and restore your whatsapp account. Remember to restore your chats from your previously created backups (either from Google Drive or from local backup).
-      - After the restore process has finished, run the following command:
-        ```
-        $ mkdir -p whatsapp_backup/databases whatsapp_backup/files
-        $ adb shell 'run-as com.fwhatsapp tar cf - /data/data/com.fwhatsapp/' | tar xvf -
-        $ cp data/data/com.fwhatsapp/databases/msgstore.db data/data/com.fwhatsapp/databases/wa.db whatsapp_backup/databases/
-        $ cp data/data/com.fwhatsapp/files/key whatsapp_backup/files/
-        ```
-      - Once we have copied all the files, delete the enhanced whatsapp app.
-      - (Optional) Reinstall the regular whatsapp app again from the App Store.
-
 4. The required files are located in the following paths:
 
    - whatsapp_backup/files/key
