@@ -44,9 +44,4 @@ The DB files and the output path are parameters and can be individual per reques
 ## Stack inside the Docker image
 
 The stack consists of:
-- Gunicorn as the WSGI server
-- Flask as the web framework handling HTTP requests
 - and the Python script `main.py` providing the core logic
-
-Gunicorn and Flask allow the script to run continuously, handling multiple HTTP requests concurrently, making it 
-suitable for a web service, unlike running the `main.py` once and exiting.

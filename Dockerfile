@@ -26,17 +26,12 @@ ENV PATH="/app/venv/bin:$PATH"
 # into this layer.
 RUN --mount=type=cache,target=/home/appuser/.cache/pip \
     --mount=type=bind,source=requirements.txt,target=requirements.txt,readonly \
-    --mount=type=bind,source=docker_scripts/docker-requirements.txt,target=docker-requirements.txt,readonly \
     python -m pip install --upgrade pip \
     && python -m pip install -r requirements.txt \
-    && python -m pip install -r docker-requirements.txt \
     && rm -rf /tmp/*
 
 # copy to /app
-COPY \
-    main.py \
-    docker_scripts/docker_flask.py \
-    /app/
+COPY main.py /app/
 COPY src /app/src
 
 CMD ["todo"]
