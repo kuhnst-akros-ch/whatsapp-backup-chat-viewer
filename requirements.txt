@@ -1,2 +1,4 @@
 tqdm
 attrs
+# for folder monitoring (polling for windows host)
+watchdog

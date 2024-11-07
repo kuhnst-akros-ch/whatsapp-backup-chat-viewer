@@ -1,9 +1,15 @@
 services:
-  whatsapp-backup-chat-viewer:
-    build: .
-    image: whatsapp-backup-chat-viewer:latest
+  whatsapp-extractor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: whatsapp-extractor:latest
+    container_name: whatsapp-extractor
     volumes:
-      - ./whatsapp_backup:/app/whatsapp_backup
-      - ./output:/app/output
-    deploy:
-      replicas: 3
+      - ./pipeline/process/:/data/input:ro
+      - ./pipeline/cache/whatsapp/:/data/cache:rw
+      - ./pipeline/output/communication/whatsapp/:/data/output:rw
+    environment:
+      - LOG_LEVEL=INFO
+      - LOG_LEVEL_MONITOR=INFO
+      - MONITOR_FILTER_PATTERN_FILE='*/database/whatsapp/*/*/*'
