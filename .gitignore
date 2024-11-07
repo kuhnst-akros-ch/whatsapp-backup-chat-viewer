@@ -150,3 +150,8 @@ TODO.md
 test_locally.py
 tests/unit/tmp/*
 /whatsapp_backup
+
+pipeline/cache/whatsapp/*
+!pipeline/cache/whatsapp/.keep
+pipeline/process/*
+!pipeline/process/.keep
