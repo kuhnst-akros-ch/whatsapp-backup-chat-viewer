@@ -15,18 +15,18 @@ logger = LoggerSetup()
 
 
 # Step 1.a: Determine if the file is a data file or a metadata file
-def is_data_file(file_path: Path) -> bool:
+def _is_data_file(file_path: Path) -> bool:
     """Determine if the file is a data file based on its suffix."""
     return file_path.name.endswith((f"-{WA_DB}", f"-{MSGSTORE_DB}"))
 
 
 # Step 1.b: Check if the counterpart file (data or metadata) exists
-def find_counterpart_file(file_path: Path) -> Optional[Path]:
+def _find_counterpart_file(file_path: Path) -> Optional[Path]:
     """Given a data or metadata file, locate its corresponding metadata or data file."""
     # Examples:
     # data-file:        DOSSIER_ID/database/whatsapp/DEVICE_ID/12345678/FILE
     # metadata-file:    DOSSIER_ID/database/whatsapp/DEVICE_ID/12345678/metadata/FILE.json
-    if is_data_file(file_path):
+    if _is_data_file(file_path):
         # add metadata folder and .json suffix
         metadata_file = file_path.parent / 'metadata' / f"{file_path.name}.json"
         # Look for the metadata counterpart
@@ -42,7 +42,7 @@ def find_counterpart_file(file_path: Path) -> Optional[Path]:
 
 
 # Step 2.a: Search for the remaining metadata files using dossier_id and device_id
-def find_matching_metadata_files(file_path: Path) -> List[str]:
+def _find_matching_metadata_files(file_path: Path) -> List[str]:
     """Use glob to locate potential metadata files matching the dossier_id and device_id."""
     relative_path = file_path.relative_to(WATCH_DIR)
     parts = list(relative_path.parts)
@@ -54,7 +54,7 @@ def find_matching_metadata_files(file_path: Path) -> List[str]:
 
 
 # Step 2.b: Parse JSON metadata and validate based on criteria
-def parse_metadata_file(metadata_path: Path) -> Optional[Dict[str, str]]:
+def _parse_metadata_file(metadata_path: Path) -> Optional[Dict[str, str]]:
     """Extract dossier_id, device_id, filename, and location from metadata JSON."""
     try:
         with open(metadata_path, 'r', encoding="utf8") as file:
@@ -70,18 +70,18 @@ def parse_metadata_file(metadata_path: Path) -> Optional[Dict[str, str]]:
         return None
 
 
-def get_initial_files(
+def _get_initial_files(
         file_path: Path
 ) -> [Optional[Path], Optional[Path], Optional[Path], Optional[Path]]:
     wa_file, wa_metadata, msgstore_file, msgstore_metadata = None, None, None, None
 
     # Step 1: Determine if file is data or metadata, and find counterpart
-    if is_data_file(file_path):
+    if _is_data_file(file_path):
         data_file = file_path
-        metadata_file = find_counterpart_file(file_path)
+        metadata_file = _find_counterpart_file(file_path)
     else:
         metadata_file = file_path
-        data_file = find_counterpart_file(file_path)
+        data_file = _find_counterpart_file(file_path)
 
     # Exit if counterpart is missing
     if not metadata_file or not data_file:
@@ -105,13 +105,13 @@ def find_whatsapp_files(file_path: Path) -> Optional[Dict[str, str]]:
         logger.error("File does not exist: %s", file_path)
         return None
 
-    wa_file, wa_metadata, msgstore_file, msgstore_metadata = get_initial_files(file_path)
+    wa_file, wa_metadata, msgstore_file, msgstore_metadata = _get_initial_files(file_path)
 
     # Step 1.b: Parse metadata to retrieve dossier_id, device_id, filename, and location
     if wa_metadata:
-        metadata_info = parse_metadata_file(wa_metadata)
+        metadata_info = _parse_metadata_file(wa_metadata)
     else:
-        metadata_info = parse_metadata_file(msgstore_metadata)
+        metadata_info = _parse_metadata_file(msgstore_metadata)
 
     if metadata_info:
         location = metadata_info["location"]
@@ -130,12 +130,12 @@ def find_whatsapp_files(file_path: Path) -> Optional[Dict[str, str]]:
                      WA_DB, MSGSTORE_DB, source_filename, file_path)
         return None
 
-    matching_metadata_files = find_matching_metadata_files(file_path)
+    matching_metadata_files = _find_matching_metadata_files(file_path)
     other_metadata_file = None
 
     # Step 2.b: Validate each found metadata file
     for candidate_metadata_file in matching_metadata_files:
-        candidate_info = parse_metadata_file(Path(candidate_metadata_file))
+        candidate_info = _parse_metadata_file(Path(candidate_metadata_file))
         if (
                 candidate_info
                 and candidate_info["location"] == location
