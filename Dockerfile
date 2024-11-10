@@ -1,7 +1,9 @@
-FROM python:3-alpine
+# Builder Stage
+FROM python:3-alpine AS builder
+
+ARG UID=10001
 
 # Create a non-privileged user that the app will run under.
-ARG UID=10001
 RUN adduser \
     --disabled-password \
     --gecos "" \
@@ -12,37 +14,65 @@ RUN adduser \
 # Switch to the non-privileged user to run the application.
 USER appuser
 
-WORKDIR /app
-
-# Create a virtual environment
-RUN python3 -m venv venv
-
-# Ensure the virtual environment is used for all future commands
-ENV PATH="/app/venv/bin:$PATH"
-
-# Download dependencies as a separate step to take advantage of Docker's caching.
-# Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
+# Create a virtual environment and install Python packages as appuser
 # Leverage a bind mount to requirements.txt to avoid having to copy them into
 # into this layer.
-RUN --mount=type=cache,target=/home/appuser/.cache/pip \
-    --mount=type=bind,source=requirements.txt,target=requirements.txt,readonly \
-    --mount=type=bind,source=docker_scripts/docker-requirements.txt,target=docker-requirements.txt,readonly \
-    python -m pip install --upgrade pip \
-    && python -m pip install -r requirements.txt \
-    && python -m pip install -r docker-requirements.txt \
-    && rm -rf /tmp/*
+RUN --mount=type=bind,source=requirements.txt,target=requirements.txt,readonly \
+    python3 -m venv /home/appuser/venv && \
+    /home/appuser/venv/bin/pip install --no-cache-dir -r requirements.txt && \
+    rm -rf /tmp/* /home/appuser/.cache/pip
+
+# Application Stage (Final Image)
+FROM python:3-alpine
+
+ARG UID=10001
+
+# Adjustable ENV-vars
+# LOG_LEVEL: Only for small part of code
+ENV LOG_LEVEL=INFO
+ENV LOG_LEVEL_MONITOR=INFO
+
+# Hard-coded ENV-vars: Leave these unchanged
+# for monitor_folder.py
+ENV MONITOR_WATCH_DIR="/data/input"
+ENV MONITOR_CACHE_DB_DIR="/data/cache"
+# relative path should be like:
+# DOSSIER_ID/database/whatsapp/DEVICE_ID/12345678/FILE
+ENV MONITOR_FILTER_PATTERN_FILE='*/database/whatsapp/*/*/*'
+# or for metadata json
+# DOSSIER_ID/database/whatsapp/DEVICE_ID/12345678/metadata/FILE.json
+ENV MONITOR_FILTER_PATTERN_METADATA='*/database/whatsapp/*/*/metadata/*'
+# for whatsapp-extractor
+ENV WHATSAPP_OUTPUT_ROOT="/data/output"
+
+# Create a non-privileged user that the app will run under.
+RUN adduser \
+    --disabled-password \
+    --gecos "" \
+    --shell "/sbin/nologin" \
+    --uid "${UID}" \
+    appuser
+
+# Copy the virtual environment with correct ownership
+COPY --from=builder /home/appuser/venv /app/venv
+
+# Set environment variables
+ENV PATH="/app/venv/bin:$PATH"
 
 # copy to /app
 COPY \
+    monitor_folder.py \
+    main_wrapper.py \
+    matching_files_finder.py \
     main.py \
-    docker_scripts/docker_flask.py \
-    /app/
-COPY src /app/src
+    /app/bin/
+COPY src /app/bin/src
 
-# Port for HTTP server
-EXPOSE 5000
+WORKDIR /data
 
-# Start the Flask app with Gunicorn in production mode
-# workers in production should be: (2 cpu-cores * 2) + 1
-# change timeout in both Dockerfile and nginx.conf !
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "5", "--timeout", "300", "--access-logfile", "-", "--error-logfile", "-", "docker_flask:app"]
+VOLUME ["/data/input", "/data/output", "/data/cache"]
+
+# Use non-privileged user to run the app
+USER appuser
+
+CMD [ "python", "/app/bin/monitor_folder.py" ]

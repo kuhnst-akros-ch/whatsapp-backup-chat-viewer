@@ -62,10 +62,6 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 
-# Flask stuff:
-instance/
-.webassets-cache
-
 # Scrapy stuff:
 .scrapy
 
@@ -154,3 +150,10 @@ TODO.md
 test_locally.py
 tests/unit/tmp/*
 /whatsapp_backup
+
+pipeline/cache/whatsapp/*
+!pipeline/cache/whatsapp/.keep
+pipeline/process/*
+!pipeline/process/.keep
+
+/sample_data
