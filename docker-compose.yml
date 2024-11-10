@@ -6,10 +6,12 @@ services:
     image: whatsapp-extractor:latest
     container_name: whatsapp-extractor
     volumes:
-      - ./pipeline/process/:/data/input:ro
+      - ./pipeline/process/:/data/input:rw
       - ./pipeline/cache/whatsapp/:/data/cache:rw
-      - ./pipeline/output/communication/whatsapp/:/data/output:rw
+      - ./pipeline/output/:/data/output:rw
     environment:
       - LOG_LEVEL=INFO
       - LOG_LEVEL_MONITOR=INFO
-      - MONITOR_FILTER_PATTERN_FILE='*/database/whatsapp/*/*/*'
+      - MONITOR_LOCK_FILENAME=Lock.lck
+      - OUTPUT_STYLE=formatted_txt
+      - CONVERSATION_TYPES=call_logs,chats,contacts

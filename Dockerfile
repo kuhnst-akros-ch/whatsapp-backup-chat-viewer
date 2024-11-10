@@ -1,7 +1,8 @@
 # Builder Stage
 FROM python:3-alpine AS builder
 
-ARG UID=10001
+# user id of user www-data on Debian
+ARG UID=33
 
 # Create a non-privileged user that the app will run under.
 RUN adduser \
@@ -25,25 +26,23 @@ RUN --mount=type=bind,source=requirements.txt,target=requirements.txt,readonly \
 # Application Stage (Final Image)
 FROM python:3-alpine
 
-ARG UID=10001
+ARG UID=33
 
 # Adjustable ENV-vars
 # LOG_LEVEL: Only for small part of code
 ENV LOG_LEVEL=INFO
 ENV LOG_LEVEL_MONITOR=INFO
+ENV MONITOR_LOCK_FILENAME=Lock.lck
+# OUTPUT_STYLE: 'output_style' or 'formatted_txt'
+ENV OUTPUT_STYLE=formatted_txt
+# Comma separated list, allowed values: 'call_logs', 'chats', 'contacts'
+ENV CONVERSATION_TYPES=call_logs,chats,contacts
 
 # Hard-coded ENV-vars: Leave these unchanged
 # for monitor_folder.py
 ENV MONITOR_WATCH_DIR="/data/input"
 ENV MONITOR_CACHE_DB_DIR="/data/cache"
-# relative path should be like:
-# DOSSIER_ID/database/whatsapp/DEVICE_ID/12345678/FILE
-ENV MONITOR_FILTER_PATTERN_FILE='*/database/whatsapp/*/*/*'
-# or for metadata json
-# DOSSIER_ID/database/whatsapp/DEVICE_ID/12345678/metadata/FILE.json
-ENV MONITOR_FILTER_PATTERN_METADATA='*/database/whatsapp/*/*/metadata/*'
-# for whatsapp-extractor
-ENV WHATSAPP_OUTPUT_ROOT="/data/output"
+ENV OUTPUT_DIR=/data/output
 
 # Create a non-privileged user that the app will run under.
 RUN adduser \
@@ -60,12 +59,7 @@ COPY --from=builder /home/appuser/venv /app/venv
 ENV PATH="/app/venv/bin:$PATH"
 
 # copy to /app
-COPY \
-    monitor_folder.py \
-    main_wrapper.py \
-    matching_files_finder.py \
-    main.py \
-    /app/bin/
+COPY monitor_folder.py main.py /app/bin/
 COPY src /app/bin/src
 
 WORKDIR /data

@@ -67,7 +67,6 @@ If you have an Android phone, your WhatsApp database is stored in a location of 
 
 4. The required files are located in the following paths:
 
-   - whatsapp_backup/files/key
    - whatsapp_backup/databases/msgstore.db
    - whatsapp_backup/databases/wa.db
 

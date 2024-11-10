@@ -32,6 +32,8 @@ def create_db_connection(file_path: str) -> Tuple[sqlite3.Connection, sqlite3.Cu
     Returns:
       A tuple of the connection and cursor objects.
     """
+    # todo open db readonly
+    # db = sqlite3.connect(f'file:{file_path}?mode=ro', uri=True)
     db = sqlite3.connect(file_path)
     return db, db.cursor()
 
