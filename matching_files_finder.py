@@ -1,6 +1,7 @@
 import glob
 import json
 import os
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, List, Dict
 
@@ -12,6 +13,15 @@ WA_DB = "wa.db"
 WATCH_DIR = os.getenv("MONITOR_WATCH_DIR")
 
 logger = LoggerSetup()
+
+
+# Define a data class to encapsulate
+@dataclass(frozen=True)
+class MatchingFiles:
+    wa_file: str
+    wa_metadata: str
+    msgstore_file: str
+    msgstore_metadata: str
 
 
 # Step 1.a: Determine if the file is a data file or a metadata file
@@ -99,7 +109,7 @@ def _get_initial_files(
 
 
 # Step 3: Main function to orchestrate the file checking and completion
-def find_whatsapp_files(file_path: Path) -> Optional[Dict[str, str]]:
+def find_whatsapp_files(file_path: Path) -> Optional[MatchingFiles]:
     """Handle a new file event and attempt to gather a complete dataset."""
     if not file_path.is_file():
         logger.error("File does not exist: %s", file_path)
@@ -160,11 +170,11 @@ def find_whatsapp_files(file_path: Path) -> Optional[Dict[str, str]]:
 
     # Step 3: Verify all files are collected
     if wa_file and wa_metadata and msgstore_file and msgstore_metadata:
-        return {
-            "wa_file": wa_file,
-            "wa_metadata": wa_metadata,
-            "msgstore_file": msgstore_file,
-            "msgstore_metadata": msgstore_metadata,
-        }
+        return MatchingFiles(
+            wa_file=wa_file,
+            wa_metadata=wa_metadata,
+            msgstore_file=msgstore_file,
+            msgstore_metadata=msgstore_metadata
+        )
 
     return None

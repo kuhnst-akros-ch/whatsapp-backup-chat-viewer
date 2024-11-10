@@ -60,7 +60,12 @@ COPY --from=builder /home/appuser/venv /app/venv
 ENV PATH="/app/venv/bin:$PATH"
 
 # copy to /app
-COPY monitor_folder.py main_wrapper.py main.py /app/bin/
+COPY \
+    monitor_folder.py \
+    main_wrapper.py \
+    matching_files_finder.py \
+    main.py \
+    /app/bin/
 COPY src /app/bin/src
 
 WORKDIR /data

@@ -36,7 +36,7 @@ def call_subprocess(file_path: str) -> bool:
     """
     try:
         # Call main_wrapper.py
-        main_wrapper.main(Path(file_path))
+        main_wrapper.wrap_main(Path(file_path))
         logger.info("Completed processing file: %s", file_path)
         return True
     except Exception as e:
