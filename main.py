@@ -3,8 +3,6 @@ import os
 import sqlite3
 from typing import List, Generator, Tuple, Dict
 
-from tqdm import tqdm
-
 from src.call_log_extractor import builder as call_log_builder
 from src.chat_extractor import builder as chat_builder
 from src.contact_extractor import builder as contact_builder
@@ -132,12 +130,12 @@ def main(
 
         if "call_logs" in conversation_types:
             call_logs = load_call_logs(msgdb_cursor, output_call_logs_directory, phone_numbers, contacts)
-            for call_log in tqdm(call_logs):
+            for call_log in call_logs:
                 export_call_log(call_log=call_log, folder=output_call_logs_directory, output_style=output_style)
 
         if "chats" in conversation_types:
             chats = load_chats(msgdb_cursor, output_chat_directory, phone_numbers, contacts)
-            for chat in tqdm(chats):
+            for chat in chats:
                 export_chat(chat=chat, folder=output_chat_directory, output_style=output_style)
 
         if "contacts" in conversation_types:
