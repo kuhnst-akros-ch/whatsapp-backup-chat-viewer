@@ -5,13 +5,20 @@ Output Format
 
 The target folder is set by the `output_dir` parameter, typically set to `output`.
 
-With value `output` these subfolders to `./output` will be created:
-- call_logs: data of calls
-- chats: data of chats
+With value `output` this structure in `./output` will be created:
+- call_logs: folder with data of calls
+- chats: folder with data of chats
+- contacts.txt: file with all contacts
 ```
 ./output
 |- call_logs
+    |- 41445209999@s.whatsapp.net.txt
+    |- Firstname Lastname (+41786319999).txt
 |- chats
+    |- 41445209999@s.whatsapp.net.txt
+    |- Firstname Lastname (+41786319999).txt
+    |- Group-Name.txt
+|- contacts.txt
 ```
 
 The output described below is also in file form in `./example_output`.
