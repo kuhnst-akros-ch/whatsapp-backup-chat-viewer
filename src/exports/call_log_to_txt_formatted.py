@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from src.common import contact_to_str, contact_to_full_str
 from src.models import CallLog, Call
@@ -21,7 +21,7 @@ def call_log_to_txt_formatted(call_log: CallLog, folder: str) -> None:
 
     for call in call_log.calls:
         if call:
-            date_time = datetime.fromtimestamp(int(call.timestamp) / 1000).strftime(
+            date_time = datetime.fromtimestamp(int(call.timestamp) / 1000, timezone.utc).strftime(
                 "%Y-%m-%d %H:%M:%S"
             )
 
