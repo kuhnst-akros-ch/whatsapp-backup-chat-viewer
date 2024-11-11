@@ -81,8 +81,7 @@ def build_all_call_logs(
         A generator of CallLog objects
     """
     query = """
-        SELECT      call_log.jid_row_id
-        FROM        call_log
+        SELECT jid._id FROM 'jid'
         """
     execution = msgdb_cursor.execute(query)
     res_query = list(chain.from_iterable(execution.fetchall()))
