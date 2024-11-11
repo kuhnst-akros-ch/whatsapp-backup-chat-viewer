@@ -36,20 +36,22 @@ def call_subprocess(file_path: str) -> bool:
     Args:
         file_path (str): The path of the file to process.
     """
+    # Example: /data/input/DOSSIER_ID/database/whatsapp/DEVICE_ID/wa.db
     dir_path = Path(file_path).parent
+    device_id = dir_path.name
+    dossier_id = dir_path.parent.parent.parent.name
+    output_dir = Path(OUTPUT_DIR) / dossier_id / "communication" / "whatsapp" / device_id
     try:
         # Call main.py
         main.main(
             msgdb_path=str(dir_path / "msgstore.db"),
             wadb_path=str(dir_path / "wa.db"),
-            output_dir=OUTPUT_DIR,
+            output_dir=str(output_dir),
             output_style=OUTPUT_STYLE,
             conversation_types=list(CONVERSATION_TYPES),
             phone_numbers=[]
         )
         logger.info("Completed processing file: %s", file_path)
-        # todo
-        raise ValueError("todo: figure out output_dir")
         return True
     except Exception as e:
         logger.error("Could not process file: %s: %s", file_path, e)
@@ -169,7 +171,6 @@ def _is_lock_file(file_path: str) -> bool:
 
 def _are_all_files_ready(file_path) -> bool:
     dir_path = str(Path(file_path).parent)
-    # todo what about lock file
     filenames = get_waiting_files(dir_path)
     # add current file, it's not waiting
     filenames.add(os.path.basename(file_path))
@@ -197,7 +198,7 @@ def process_file(file_path: str) -> None:
     # Set status for lock-files
     if _is_lock_file(file_path):
         logger.info("Processing lock-file: %s", file_path)
-        logger.info("Locking directorory: %s", os.path.dirname(file_path))
+        logger.info("Locking directory: %s", os.path.dirname(file_path))
         status = 'completed'
         update_file_status(file_path, status)
     # Put files in cache as waiting until are files are present
@@ -208,11 +209,12 @@ def process_file(file_path: str) -> None:
     # Process normal files (non lock-files)
     else:
         logger.info("Processing file: %s", file_path)
-        update_file_status(file_path, 'processing')
+        dir_path = Path(file_path)
+        for filename in SUPPORTED_FILENAMES:
+            update_file_status(str(dir_path / filename), 'processing')
         success = call_subprocess(file_path=file_path)
         status = 'completed' if success else 'error'
         # update both db-files
-        dir_path = Path(file_path)
         for filename in SUPPORTED_FILENAMES:
             update_file_status(str(dir_path / filename), status)
 
@@ -391,7 +393,8 @@ SUPPORTED_FILENAMES = {"msgstore.db", "wa.db"}
 watched_filenames = SUPPORTED_FILENAMES.copy()
 watched_filenames.add(LOCK_FILENAME)
 
-watchdir_patterns = [f"{WATCH_DIR}/*/database/whatsapp/*/{filename}" for filename in watched_filenames]
+watchdir_patterns = [f"{WATCH_DIR}/*/database/whatsapp/*/{filename}"
+                     for filename in watched_filenames]
 
 logger.info("Monitoring with these patterns: %s", watchdir_patterns)
 
