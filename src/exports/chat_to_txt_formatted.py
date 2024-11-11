@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Callable, List, Generator
 
 from src.common import contact_to_str, contact_to_full_str
@@ -25,7 +25,7 @@ def chat_to_txt_formatted(chat: Chat, folder: str) -> None:
             and not message.geo_position
         ):
             # If there is no data or media or reply_to, we can assume that the message was about change in chat settings.
-            date_time = datetime.fromtimestamp(int(message.timestamp) / 1000)
+            date_time = datetime.fromtimestamp(int(message.timestamp) / 1000, timezone.utc)
             message_str = f"[{date_time}] 'Change in the chat settings'"
         else:
             message_str = get_message_str(chat, idx, message)
@@ -49,7 +49,7 @@ def chat_to_txt_formatted(chat: Chat, folder: str) -> None:
 
 
 def get_message_str(chat, idx, message) -> str:
-    date_time = datetime.fromtimestamp(int(message.timestamp) / 1000)
+    date_time = datetime.fromtimestamp(int(message.timestamp) / 1000, timezone.utc)
     sender_name = resolve_sender_name(msg=message)
     message_str = (
         f"[{date_time}]: {sender_name} - {message.text_data}"
