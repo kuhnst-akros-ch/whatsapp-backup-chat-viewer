@@ -23,8 +23,7 @@ def build_call_for_given_id(
 
     if call_details:
         return Call(**call_details)
-    else:
-        return None
+    return None
 
 
 def build_call_log_for_given_id_or_phone_number(
@@ -72,7 +71,7 @@ def build_call_log_for_given_id_or_phone_number(
 def build_all_call_logs(
     msgdb_cursor: sqlite3.Cursor, contacts: Dict[str, List[Contact]]
 ) -> Generator[CallLog, None, None]:
-    """Extract all call_logs in the msgdb database.
+    """Extract all call_logs in the msgdb database.ff
 
     Args:
         msgdb_cursor (sqlite3.Cursor): 'msgdb' cursor.
@@ -81,8 +80,10 @@ def build_all_call_logs(
     Returns:
         A generator of CallLog objects
     """
-    # todo check: is it really necessary to scan entire jid table? it's probably used for more than just calls
-    query = "SELECT jid._id FROM 'jid'"
+    query = """
+        SELECT      call_log.jid_row_id
+        FROM        call_log
+        """
     execution = msgdb_cursor.execute(query)
     res_query = list(chain.from_iterable(execution.fetchall()))
 
