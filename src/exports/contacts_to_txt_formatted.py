@@ -4,7 +4,7 @@ from src.common import contact_to_full_str
 from src.models import Contact
 
 
-def contacts_to_txt_formatted(contacts: Dict[str, List[Contact]], file_name: str) -> None:
+def contacts_to_txt_formatted(contacts: Dict[str, List[Contact]], file_path: str) -> str:
     lines = []
 
     # Collect lines to write
@@ -18,5 +18,6 @@ def contacts_to_txt_formatted(contacts: Dict[str, List[Contact]], file_name: str
     lines.sort()
 
     # Write sorted lines to file
-    with open(file_name, 'w', encoding="utf-8") as f:
+    with open(file_path, 'w', encoding="utf-8") as f:
         f.writelines('\n'.join(lines))
+    return file_path

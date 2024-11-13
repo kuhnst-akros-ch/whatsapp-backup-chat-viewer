@@ -15,11 +15,15 @@ def media_resolver(msgdb_cursor: sqlite3.Cursor, message_row_id: int) -> Dict[st
     Returns:
         Dict[str, Any]: Dictionary containing 'message_id', 'media_job_uuid', 'file_path' and 'mime_type' keys.
     """
-    query = ("""
-        SELECT      message_media.message_row_id as message_id, message_media.media_job_uuid, message_media.file_path, message_media.mime_type
+    query = """
+        SELECT      message_media.message_row_id as message_id,
+                    message_media.media_job_uuid,
+                    '/storage/emulated/0/WhatsApp/' || message_media.file_path file_path,
+                    '/data/data/com.whatsapp/files' || message_media.direct_path direct_path,
+                    message_media.mime_type
         FROM        message_media
         WHERE       message_media.message_row_id=?
-    """)
+    """
     execution = msgdb_cursor.execute(query, (message_row_id,))
     res_query = execution.fetchone()
     if res_query is None:

@@ -1,7 +1,7 @@
 import argparse
 import os
 import sqlite3
-from typing import List, Generator, Tuple, Dict
+from typing import List, Generator, Tuple, Dict, Optional
 
 from src.call_log_extractor import builder as call_log_builder
 from src.chat_extractor import builder as chat_builder
@@ -9,6 +9,7 @@ from src.contact_extractor import builder as contact_builder
 from src.exports.call_log_to_txt_formatted import call_log_to_txt_formatted
 from src.exports.chat_to_txt_formatted import chat_to_txt_formatted
 from src.exports.contacts_to_txt_formatted import contacts_to_txt_formatted
+from src.exports.metadata_to_json import MetadataContext, write_metadata
 from src.exports.to_json import call_log_to_json, chat_to_json
 from src.exports.to_txt_raw import call_log_to_txt_raw, chat_to_txt_raw
 from src.models import Chat, CallLog, Contact
@@ -21,7 +22,8 @@ CONTACTS_FIlE = "/contacts.txt"
 def create_db_connection(file_path: str) -> Tuple[sqlite3.Connection, sqlite3.Cursor]:
     """Create a database connection and return it.
 
-    The function takes a single argument, `file_path`, which is a string. The function returns a tuple
+    The function takes a single argument, `file_path`, which is a string. The function returns a
+    tuple
     of two items: a `sqlite3.Connection` object and a `sqlite3.Cursor` object
 
     Args:
@@ -82,25 +84,26 @@ def load_chats(
         ]
 
 
-def export_call_log(call_log: CallLog, folder: str, output_style: str) -> None:
-    if call_log.calls:
-        if output_style == "raw_txt":
-            call_log_to_txt_raw(call_log=call_log, folder=folder)
-        elif output_style == "formatted_txt":
-            call_log_to_txt_formatted(call_log=call_log, folder=folder)
-        elif output_style == "json":
-            call_log_to_json(call_log=call_log, folder=folder)
-        else:
-            raise AssertionError("Invalid 'call_log formatting' requested")
-
-
-def export_chat(chat: Chat, folder: str, output_style: str) -> None:
+def export_call_log(call_log: CallLog, folder: str, output_style: str) -> Optional[str]:
+    if not call_log.calls:
+        return None
     if output_style == "raw_txt":
-        chat_to_txt_raw(chat=chat, folder=folder)
+        return call_log_to_txt_raw(call_log=call_log, folder=folder)
     elif output_style == "formatted_txt":
-        chat_to_txt_formatted(chat=chat, folder=folder)
+        return call_log_to_txt_formatted(call_log=call_log, folder=folder)
     elif output_style == "json":
-        chat_to_json(chat=chat, folder=folder)
+        return call_log_to_json(call_log=call_log, folder=folder)
+    else:
+        raise AssertionError("Invalid 'call_log formatting' requested")
+
+
+def export_chat(chat: Chat, folder: str, output_style: str) -> str:
+    if output_style == "raw_txt":
+        return chat_to_txt_raw(chat=chat, folder=folder)
+    elif output_style == "formatted_txt":
+        return chat_to_txt_formatted(chat=chat, folder=folder)
+    elif output_style == "json":
+        return chat_to_json(chat=chat, folder=folder)
     else:
         raise AssertionError("Invalid 'chat formatting' requested")
 
@@ -111,10 +114,11 @@ def main(
         output_dir: str,
         conversation_types: List[str],
         phone_numbers: List[str],
-        output_style: str
+        output_style: str,
+        metadata_context: Optional[MetadataContext]
 ) -> None:
     if output_style not in ("raw_txt", "formatted_txt", "json"):
-        raise AssertionError(f"Invalid formatting '{args.output_style}' requested")
+        raise AssertionError(f"Invalid formatting '{output_style}' requested")
 
     wadb, wadb_cursor = create_db_connection(wadb_path)
     try:
@@ -129,26 +133,37 @@ def main(
         output_contacts_file = output_dir + CONTACTS_FIlE
 
         if "call_logs" in conversation_types:
-            call_logs = load_call_logs(msgdb_cursor, output_call_logs_directory, phone_numbers, contacts)
+            call_logs = load_call_logs(msgdb_cursor, output_call_logs_directory, phone_numbers,
+                                       contacts)
             for call_log in call_logs:
-                export_call_log(call_log=call_log, folder=output_call_logs_directory, output_style=output_style)
+                exported_file_path = export_call_log(call_log=call_log,
+                                                     folder=output_call_logs_directory,
+                                                     output_style=output_style)
+                if metadata_context and exported_file_path:
+                    write_metadata(msgdb_cursor, metadata_context, exported_file_path, None)
 
         if "chats" in conversation_types:
             chats = load_chats(msgdb_cursor, output_chat_directory, phone_numbers, contacts)
             for chat in chats:
-                export_chat(chat=chat, folder=output_chat_directory, output_style=output_style)
+                exported_file_path = export_chat(chat=chat, folder=output_chat_directory,
+                                                 output_style=output_style)
+                if metadata_context:
+                    write_metadata(msgdb_cursor, metadata_context, exported_file_path, chat.chat_id)
 
         if "contacts" in conversation_types:
-            contacts_to_txt_formatted(contacts=contacts, file_name=output_contacts_file)
+            exported_file_path = contacts_to_txt_formatted(contacts=contacts,
+                                                           file_path=output_contacts_file)
+            if metadata_context:
+                write_metadata(msgdb_cursor, metadata_context, exported_file_path, None)
 
     finally:
         close_db_connections([msgdb])
 
 
 if __name__ == "__main__":
-
     ap = argparse.ArgumentParser(
-        description="Project to extract Whatsapp conversations and/or call logs from the app's SQLite database and exporting them as JSON or TXT files."
+        description="Project to extract Whatsapp conversations and/or call logs from the app's "
+                    "SQLite database and exporting them as JSON or TXT files."
     )
     ap.add_argument(
         "--msgdb", "-mdb", type=str, required=True, help="Path to 'msgstore.db' file"
@@ -184,7 +199,8 @@ if __name__ == "__main__":
         "-f",
         nargs="*",
         default=[],
-        help="Phone numbers (format: XXXXXXXXXXXX) of the chats and/or call logs that you want to extract from the database. Empty means all phone numbers",
+        help="Phone numbers (format: XXXXXXXXXXXX) of the chats and/or call logs that you want to "
+             "extract from the database. Empty means all phone numbers",
     )
     args = ap.parse_args()
 
@@ -194,5 +210,6 @@ if __name__ == "__main__":
         output_dir=args.output_dir,
         conversation_types=args.conversation_types,
         phone_numbers=args.phone_number_filter,
-        output_style=args.output_style
+        output_style=args.output_style,
+        metadata_context=None
     )

@@ -1,10 +1,11 @@
+import os
 from datetime import datetime, timezone
 
 from src.common import contact_to_str, contact_to_full_str
 from src.models import CallLog, Call
 
 
-def call_log_to_txt_formatted(call_log: CallLog, folder: str) -> None:
+def call_log_to_txt_formatted(call_log: CallLog, folder: str) -> str:
     """Format call logs in a readable format and store them as a text file.
 
     Args:
@@ -35,8 +36,10 @@ def call_log_to_txt_formatted(call_log: CallLog, folder: str) -> None:
     call_logs = "\n".join(call_log_list)
 
     file_name = contact_to_str(call_log.caller_id).replace("/", "_") + ".txt"
-    with open(f"{folder}/{file_name}", "w", encoding="utf-8") as file:
+    file_path = os.path.join(folder, file_name)
+    with open(file_path, "w", encoding="utf-8") as file:
         file.write(f"{caller_id_details_full}\n\n{call_logs}")
+    return file_path
 
 
 def call_to_me_formatted(call: Call, caller_id_details : str, date_time: str) -> str:

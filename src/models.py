@@ -4,7 +4,7 @@ from attrs import define
 
 
 @define
-class ContactOrChatBase(object):
+class ContactOrChatBase():
     raw_string_jid: str  # Who sent this message in a group message setting. Resolved from `message.sender_jid_row_id -> jid._id -> jid.raw_string`.
 
 
@@ -26,22 +26,23 @@ class GroupName(ContactOrChatBase):
 
 
 @define
-class Media(object):
+class Media():
     message_id: int  # Which message does this medium belong to. Resolved from `message_media.message_row_id`.
     media_job_uuid: str  # Resolved from `message_media.media_job_uuid`.
-    file_path: str  # Resolved from `message_media.file_path`.
+    file_path: Optional[str]  # Resolved from `message_media.file_path`.
+    direct_path: Optional[str]  # Resolved from `message_media.file_path`.
     mime_type: str  # Resolved from `message_media.mime_type`.
 
 
 @define
-class GeoPosition(object):
+class GeoPosition():
     message_id: int  # Which message does this medium belong to. Resolved from `message_location.message_row_id`.
     latitude: float  # Resolved from `message_location.latitude`.
     longitude: float  # Resolved from `message_location.longitude`.
 
 
 @define
-class Message(object):
+class Message():
     message_id: int  # Message ID. Resolved from `message._id`.
     key_id: str  # Key ID. Resolved from `message.key_id`.
     chat_id: int  # Which chat does this message belong to. Resolved from `message.chat_row_id`.
@@ -57,7 +58,7 @@ class Message(object):
 
 
 @define
-class Chat(object):
+class Chat():
     chat_id: int  # Chat ID. Resolved from `chat._id`.
     chat_title: Optional[Union[Contact, GroupName]]  # Chat title.
     messages: List[Optional[Message]]
@@ -65,7 +66,7 @@ class Chat(object):
 
 
 @define
-class Call(object):
+class Call():
     call_row_id: int  # Call row ID. Resolved from `call_log._id`.
     from_me: int  # Whether this call was made by me or not. Resolved from `call_log.from_me -> bool`.
     timestamp: int  # When was this call made. Resolved from `call_log.timestamp`.
@@ -75,7 +76,7 @@ class Call(object):
 
 
 @define
-class CallLog(object):
+class CallLog():
     jid_row_id: int
     caller_id: Optional[Contact]
     calls: List[Optional[Call]]

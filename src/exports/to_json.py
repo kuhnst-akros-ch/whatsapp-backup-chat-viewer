@@ -1,4 +1,5 @@
 import json
+import os
 
 from attrs import asdict
 
@@ -6,7 +7,7 @@ from ..common import contact_to_str
 from ..models import CallLog, Chat, Contact, GroupName
 
 
-def chat_to_json(chat: Chat, folder: str) -> None:
+def chat_to_json(chat: Chat, folder: str) -> str:
     """Store chat as a JSON file.
 
     It takes a chat object and a directory, and writes a json file to the directory with the chat's
@@ -27,11 +28,13 @@ def chat_to_json(chat: Chat, folder: str) -> None:
         chat_title_details = ""
 
     file_name = chat_title_details.replace("/", "_") + ".json"
-    with open(f"{folder}/{file_name}", "w", encoding="utf8") as file:
+    file_path = os.path.join(folder, file_name)
+    with open(file_path, "w", encoding="utf8") as file:
         json.dump(asdict(chat), file, sort_keys=True, indent=4, ensure_ascii=False)
+    return file_path
 
 
-def call_log_to_json(call_log: CallLog, folder: str) -> None:
+def call_log_to_json(call_log: CallLog, folder: str) -> str:
     """Store call logs as a JSON file.
 
     It takes a `CallLog` object and a directory path, and writes a JSON file to the directory with the
@@ -47,5 +50,7 @@ def call_log_to_json(call_log: CallLog, folder: str) -> None:
     caller_id_details = contact_to_str(call_log.caller_id)
 
     file_name = caller_id_details.replace("/", "_") + ".json"
-    with open(f"{folder}/{file_name}", "w", encoding="utf8") as file:
+    file_path = os.path.join(folder, file_name)
+    with open(file_path, "w", encoding="utf8") as file:
         json.dump(asdict(call_log), file, sort_keys=True, indent=4, ensure_ascii=False)
+    return file_path

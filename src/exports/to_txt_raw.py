@@ -1,8 +1,10 @@
+import os
+
 from ..common import contact_to_str
 from ..models import CallLog, Chat, Contact, GroupName
 
 
-def chat_to_txt_raw(chat: Chat, folder: str) -> None:
+def chat_to_txt_raw(chat: Chat, folder: str) -> str:
     """Store chat messages in a text file without formatting.
 
     Args:
@@ -23,11 +25,13 @@ def chat_to_txt_raw(chat: Chat, folder: str) -> None:
     messages = "\n".join([str(message) for message in chat.messages])
 
     file_name = chat_title_details.replace("/", "_") + "-raw.txt"
-    with open(f"{folder}/{file_name}", "w", encoding="utf-8") as file:
+    file_path = os.path.join(folder, file_name)
+    with open(file_path, "w", encoding="utf-8") as file:
         file.write(f"{chat_title_details}\n\n{messages}")
+    return file_path
 
 
-def call_log_to_txt_raw(call_log: CallLog, folder: str) -> None:
+def call_log_to_txt_raw(call_log: CallLog, folder: str) -> str:
     """Store call logs in a text file without formatting.
 
     Args:
@@ -42,5 +46,7 @@ def call_log_to_txt_raw(call_log: CallLog, folder: str) -> None:
     call_logs = "\n".join([str(call) for call in call_log.calls])
 
     file_name = caller_id_details.replace("/", "_") + "-raw.txt"
-    with open(f"{folder}/{file_name}", "w", encoding="utf-8") as file:
+    file_path = os.path.join(folder, file_name)
+    with open(file_path, "w", encoding="utf-8") as file:
         file.write(f"{caller_id_details}\n\n{call_logs}")
+    return file_path

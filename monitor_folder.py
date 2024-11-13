@@ -8,6 +8,7 @@ from watchdog.events import FileSystemEvent, PatternMatchingEventHandler
 from watchdog.observers.polling import PollingObserver
 
 import main
+from src.exports.metadata_to_json import MetadataContext
 from src.logger_setup.logger_setup import LoggerSetup
 
 # Paths
@@ -41,6 +42,13 @@ def call_subprocess(file_path: str) -> bool:
     device_id = dir_path.name
     dossier_id = dir_path.parent.parent.parent.name
     output_dir = Path(OUTPUT_DIR) / dossier_id / "communication" / "whatsapp" / device_id
+
+    # init the metadata-context
+    metadata_context = MetadataContext(output_dir=output_dir,
+                                       dossier_id=dossier_id,
+                                       device_id=device_id,
+                                       msgdb_path=str(dir_path / "msgstore.db"),
+                                       wadb_path=str(dir_path / "wa.db"))
     try:
         # Call main.py
         main.main(
@@ -49,7 +57,8 @@ def call_subprocess(file_path: str) -> bool:
             output_dir=str(output_dir),
             output_style=OUTPUT_STYLE,
             conversation_types=list(CONVERSATION_TYPES),
-            phone_numbers=[]
+            phone_numbers=[],
+            metadata_context=metadata_context
         )
         logger.info("Completed processing file: %s", file_path)
         return True

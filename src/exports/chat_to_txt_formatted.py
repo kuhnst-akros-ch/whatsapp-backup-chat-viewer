@@ -1,11 +1,12 @@
+import os
 from datetime import datetime, timezone
-from typing import Callable, List, Generator
+from typing import Callable, List, Generator, Optional
 
 from src.common import contact_to_str, contact_to_full_str
 from src.models import Chat, Message, Contact, GroupName
 
 
-def chat_to_txt_formatted(chat: Chat, folder: str) -> None:
+def chat_to_txt_formatted(chat: Chat, folder: str) -> str:
     """Format chat messages in a readable format and store them as a text file.
 
     Args:
@@ -44,8 +45,10 @@ def chat_to_txt_formatted(chat: Chat, folder: str) -> None:
     messages = "\n".join(message_list)
 
     file_name = chat_title_details.replace("/", "_") + ".txt"
-    with open(f"{folder}/{file_name}", "w", encoding="utf-8") as file:
+    file_path = os.path.join(folder, file_name)
+    with open(file_path, "w", encoding="utf-8") as file:
         file.write(f"{participants_details}\n\n{messages}")
+    return file_path
 
 
 def get_message_str(chat, idx, message) -> str:
@@ -68,7 +71,12 @@ def get_message_str(chat, idx, message) -> str:
         message_str += get_orig_message_str(orig_message)
     # Retrieve media from the message if any
     if message.media:
-        message_str += f"\n\t>>> Media: {message.media.file_path}"
+        media_path: Optional[str] = None
+        if message.media.file_path:
+            media_path = message.media.file_path
+        elif message.media.direct_path:
+            media_path = message.media.direct_path
+        message_str += f"\n\t>>> Media: {media_path}"
     # Retrieve location from the message if any
     if message.geo_position:
         message_str += f"\n\t>>> Location: ({message.geo_position.latitude},{message.geo_position.longitude})"
